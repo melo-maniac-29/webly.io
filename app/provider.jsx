@@ -3,6 +3,7 @@ import React from "react"; //for dark theme providing after installing npm dark 
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import Header from "@/components/custom/Header";
 import { MessagesContext } from "@/context/MessagesContext";
+import { useState } from "react";
 
 function Provider({ children }) {
     const[messages,setMessages] = useState();
