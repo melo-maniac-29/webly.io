@@ -1,5 +1,7 @@
 "use client"; //client side rendering
-import Lookup from "../../data/lookup";
+
+import Lookup from "@/data/Lookup";
+
 import React from "react";
 import { ArrowRight } from "lucide-react";
 import { Link } from "lucide-react";
@@ -9,6 +11,10 @@ import { useContext } from "react";
 import { MessagesContext } from "../../context/MessagesContext";
 import { UserDetailContext } from "../../context/UserDetailContext";
 import SignInDialog from "./SignInDialog";
+import { useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { useRouter } from "next/navigation";
+
 
 function Hero() {
   const [userInput, setUserInput] = useState();
@@ -19,15 +25,32 @@ function Hero() {
 
   const [openDialog, setOpenDialog] = useState(false);
 
-  const onGenerate = (input) => {
+  const CreateWorkspace=useMutation(api.workspace.CreateWorkspace);
+
+  const router = useRouter(); //router object
+
+  const onGenerate = async(input) => { //onGenerate function
     if (!userDetail?.name) {
       setOpenDialog(true);
       return;
     }
-    setMessages({
-      role: "user",
-      content: input,
+
+    const msg={ //creating message object
+      role:'user',
+      content:input
+    }
+
+    setMessages(msg);
+
+    const workspaceId=await CreateWorkspace({ //creating workspace in database
+      user:userDetail._id,
+      messages:[msg]
     });
+
+    console.log(workspaceId);
+
+    router.push(`/workspace/`+workspaceId); //redirecting to workspace page
+
   };
 
   return (
@@ -57,14 +80,14 @@ function Hero() {
           <Link />
         </div>
       </div>
+
       <div className=" mt-8 flex flex-wrap max-w-2xl items-center justify-center gap-3">
         {Lookup?.SUGGSTIONS.map((suggestion, index) => (
           <h2
             key={index}
             onClick={() => setUserInput(suggestion)}
             className="p-1 px-2 border rounded-full text-sm text-gray-400 hover:text-white cursor-pointer"
-          >
-            {suggestion}
+          >{suggestion}
           </h2>
         ))}
       </div>

@@ -7,5 +7,10 @@ export default defineSchema({
         email:v.string(),
         picture:v.string(),
         uid:v.string(),
-    })
+    }),
+    workspaces:defineTable({
+        messages:v.any(),//message can be anything JSON object
+        fileData:v.optional(v.any()), //fileData can be anything JSON object
+        user:v.id('users'), //user is id of users table
+    }),
 })
