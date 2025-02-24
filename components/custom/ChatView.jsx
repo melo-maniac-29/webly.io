@@ -7,7 +7,7 @@ import { useConvex } from "convex/react";
 import { useParams } from "next/navigation";
 import React, { use, useContext, useEffect, useState } from "react";
 import Image from "next/image";
-import { ArrowRight, Link } from "lucide-react";
+import { ArrowRight, Link, Loader2Icon } from "lucide-react";
 import Lookup from "@/data/Lookup";
 import axios from "axios";
 import Prompt from "@/data/Prompt";
@@ -67,23 +67,34 @@ function ChatView() {
     });
     console.log(result.data.result);
 
-    setMessages(prev=>[...prev,{
-      role:"ai",
-      content:result.data.result
-    }])
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "ai",
+        content: result.data.result,
+      },
+    ]);
     setLoading(false);
   };
 
-  
+  const onGenerate=(input)=>{ //function to generate the response for the user input continuously
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "user",
+        content: input,
+      },
+    ]);
+  }
 
   return (
     <div className="relative h-[85vh] flex flex-col">
-      <div className="flex-1 overflow-y-scroll">
+      <div className="flex-1 overflow-y-scroll scrollbar-hide">
         {Array.isArray(messages)
           ? messages.map((msg, index) => (
               <div
                 key={index}
-                className="p-3 rounded-lg mb-2 flex gap-2 items-start"
+                className="p-3 rounded-lg mb-2 flex gap-2 items-start leading-7"
                 style={{
                   backgroundColor: Colors.CHAT_BACKGROUND,
                 }}
@@ -102,6 +113,15 @@ function ChatView() {
               </div>
             ))
           : null}
+        {loading && (
+          <div className="p-3 rounded-lg mb-2 flex gap-2 items-start" 
+          style={{
+            backgroundColor: Colors.CHAT_BACKGROUND,
+          }} >
+            <Loader2Icon className="animate-spin" />
+            <h2>Generating response...</h2>
+          </div>
+        )}
       </div>
 
       {/* Input section */}
