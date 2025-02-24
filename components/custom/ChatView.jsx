@@ -25,6 +25,8 @@ function ChatView() {
 
   const [userInput, setUserInput] = useState(); //user input state
 
+  const [loading, setLoading] = useState(false); //loading state
+
   useEffect(() => {
     //useEffect is used to run the function when the component is mounted
     id && GetWorkspaceData(); //function to get the workspace data
@@ -41,17 +43,6 @@ function ChatView() {
     console.log(result);
   };
 
-  const GetAiResponse = async () => {
-    {
-      /*function to get the AI response*/
-    }
-    const PROMPT = JSON.stringify(messages) + Prompt.CHAT_PROMPT;
-    const result = await axios.post("/api/ai-chat", {
-      prompt: PROMPT,
-    });
-    console.log(result.data.result);
-  };
-
   useEffect(() => {
     if (messages?.length > 0) {
       /*if messages are present then get the AI response*/
@@ -59,10 +50,31 @@ function ChatView() {
       const role = messages[messages?.length - 1].role;
 
       if (role == "user") {
-        GetAiResponse();
+        GetAiResponse();  //chat response succesfully-created
       }
     }
   }, [messages]);
+
+  const GetAiResponse = async () => {
+    {
+      /*function to get the AI response*/
+    }
+
+    setLoading(true);
+    const PROMPT = JSON.stringify(messages) + Prompt.CHAT_PROMPT;
+    const result = await axios.post("/api/ai-chat", {
+      prompt: PROMPT,
+    });
+    console.log(result.data.result);
+
+    setMessages(prev=>[...prev,{
+      role:"ai",
+      content:result.data.result
+    }])
+    setLoading(false);
+  };
+
+  
 
   return (
     <div className="relative h-[85vh] flex flex-col">
