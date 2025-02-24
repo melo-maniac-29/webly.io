@@ -9,6 +9,8 @@ import React, { use, useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import { ArrowRight, Link } from "lucide-react";
 import Lookup from "@/data/Lookup";
+import axios from "axios";
+import Prompt from "@/data/Prompt";
 
 function ChatView() {
   //used to fetch workspace data by workspacw id
@@ -39,37 +41,56 @@ function ChatView() {
     console.log(result);
   };
 
+  const GetAiResponse = async () => {
+    {
+      /*function to get the AI response*/
+    }
+    const PROMPT = JSON.stringify(messages) + Prompt.CHAT_PROMPT;
+    const result = await axios.post("/api/ai-chat", {
+      prompt: PROMPT,
+    });
+    console.log(result.data.result);
+  };
+
+  useEffect(() => {
+    if (messages?.length > 0) {
+      /*if messages are present then get the AI response*/
+
+      const role = messages[messages?.length - 1].role;
+
+      if (role == "user") {
+        GetAiResponse();
+      }
+    }
+  }, [messages]);
+
   return (
     <div className="relative h-[85vh] flex flex-col">
       <div className="flex-1 overflow-y-scroll">
-        {messages?.map(
-          (
-            msg,
-            index //mapping the messages   img displaying the user image
-          ) => (
-            <div
-              key={index}
-              className="p-3 rounded-lg mb-2 flex gap-2 items-start"
-              style={{
-                backgroundColor: Colors.CHAT_BACKGROUND,
-              }}
-            >
-              {msg?.role == "user" && (
-                <Image
-                  src={userDetail?.picture}
-                  alt="userImage"
-                  width={35}
-                  height={35}
-                  className="rounded-full"
-                />
-              )}
+        {Array.isArray(messages)
+          ? messages.map((msg, index) => (
+              <div
+                key={index}
+                className="p-3 rounded-lg mb-2 flex gap-2 items-start"
+                style={{
+                  backgroundColor: Colors.CHAT_BACKGROUND,
+                }}
+              >
+                {msg?.role == "user" && (
+                  <Image
+                    src={userDetail?.picture}
+                    alt="userImage"
+                    width={35}
+                    height={35}
+                    className="rounded-full"
+                  />
+                )}
 
-              <h2>{msg.content}</h2>
-            </div>
-          )
-        )}
+                <h2>{msg.content}</h2>
+              </div>
+            ))
+          : null}
       </div>
-
 
       {/* Input section */}
       <div
