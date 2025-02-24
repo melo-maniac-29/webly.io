@@ -11,6 +11,7 @@ import { ArrowRight, Link, Loader2Icon } from "lucide-react";
 import Lookup from "@/data/Lookup";
 import axios from "axios";
 import Prompt from "@/data/Prompt";
+import ReactMarkdown from "react-markdown";
 
 function ChatView() {
   //used to fetch workspace data by workspacw id
@@ -27,7 +28,7 @@ function ChatView() {
 
   const [loading, setLoading] = useState(false); //loading state
 
-  const UpdateMessages=useMutation(api.workspace.UpdateMessages); //mutation to update the messages
+  const UpdateMessages = useMutation(api.workspace.UpdateMessages); //mutation to update the messages
 
   useEffect(() => {
     //useEffect is used to run the function when the component is mounted
@@ -52,7 +53,7 @@ function ChatView() {
       const role = messages[messages?.length - 1].role;
 
       if (role == "user") {
-        GetAiResponse();  //chat response succesfully-created
+        GetAiResponse(); //chat response succesfully-created
       }
     }
   }, [messages]);
@@ -68,24 +69,27 @@ function ChatView() {
       prompt: PROMPT,
     });
 
-    const aiResp={ //AI response object
+    const aiResp = {
+      //AI response object
       role: "ai",
       content: result.data.result,
-    }
+    };
 
-    setMessages((prev) => [ //set the AI response in the messages
+    setMessages((prev) => [
+      //set the AI response in the messages
       ...prev,
-      aiResp
+      aiResp,
     ]);
 
     await UpdateMessages({
-      messages:[...messages, aiResp], //update the messages in the database
-      workspaceId:id
-    })
+      messages: [...messages, aiResp], //update the messages in the database
+      workspaceId: id,
+    });
     setLoading(false);
   };
 
-  const onGenerate=(input)=>{ //function to generate the response for the user input continuously
+  const onGenerate = (input) => {
+    //function to generate the response for the user input continuously
     setMessages((prev) => [
       ...prev,
       {
@@ -93,8 +97,8 @@ function ChatView() {
         content: input,
       },
     ]);
-    setUserInput('');
-  }
+    setUserInput("");
+  };
 
   return (
     <div className="relative h-[85vh] flex flex-col">
@@ -118,15 +122,49 @@ function ChatView() {
                   />
                 )}
 
-                <h2>{msg.content}</h2>
+                <div className="flex flex-col w-full">
+                  <ReactMarkdown
+                    components={{
+                      p: ({ node, ...props }) => (
+                        <p className="text-gray-200 mb-2" {...props} />
+                      ),
+                      code: ({ node, inline, ...props }) => (
+                        <code
+                          className={`${
+                            inline
+                              ? "bg-gray-800 px-1 rounded"
+                              : "block bg-gray-800 p-3 rounded-lg my-2"
+                          }`}
+                          {...props}
+                        />
+                      ),
+                      ul: ({ node, ...props }) => (
+                        <ul className="list-disc ml-4 mb-2" {...props} />
+                      ),
+                      ol: ({ node, ...props }) => (
+                        <ol className="list-decimal ml-4 mb-2" {...props} />
+                      ),
+                      li: ({ node, ...props }) => (
+                        <li className="mb-1" {...props} />
+                      ),
+                      pre: ({ node, ...props }) => (
+                        <pre className="bg-gray-800 p-3 rounded-lg my-2" {...props} />
+                      ),
+                    }}
+                  >
+                    {msg.content || ""}
+                  </ReactMarkdown>
+                </div>
               </div>
             ))
           : null}
         {loading && (
-          <div className="p-3 rounded-lg mb-2 flex gap-2 items-start" 
-          style={{
-            backgroundColor: Colors.CHAT_BACKGROUND,
-          }} >
+          <div
+            className="p-3 rounded-lg mb-2 flex gap-2 items-start"
+            style={{
+              backgroundColor: Colors.CHAT_BACKGROUND,
+            }}
+          >
             <Loader2Icon className="animate-spin" />
             <h2>Generating response...</h2>
           </div>
