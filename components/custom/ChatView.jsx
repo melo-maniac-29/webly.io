@@ -3,7 +3,7 @@ import { MessagesContext } from "@/context/MessagesContext";
 import { UserDetailContext } from "@/context/UserDetailContext";
 import { api } from "@/convex/_generated/api";
 import Colors from "@/data/Colors";
-import { useConvex } from "convex/react";
+import { useConvex, useMutation } from "convex/react";
 import { useParams } from "next/navigation";
 import React, { use, useContext, useEffect, useState } from "react";
 import Image from "next/image";
@@ -26,6 +26,8 @@ function ChatView() {
   const [userInput, setUserInput] = useState(); //user input state
 
   const [loading, setLoading] = useState(false); //loading state
+
+  const UpdateMessages=useMutation(api.workspace.UpdateMessages); //mutation to update the messages
 
   useEffect(() => {
     //useEffect is used to run the function when the component is mounted
@@ -65,15 +67,21 @@ function ChatView() {
     const result = await axios.post("/api/ai-chat", {
       prompt: PROMPT,
     });
-    console.log(result.data.result);
 
-    setMessages((prev) => [
+    const aiResp={ //AI response object
+      role: "ai",
+      content: result.data.result,
+    }
+
+    setMessages((prev) => [ //set the AI response in the messages
       ...prev,
-      {
-        role: "ai",
-        content: result.data.result,
-      },
+      aiResp
     ]);
+
+    await UpdateMessages({
+      messages:[...messages, aiResp], //update the messages in the database
+      workspaceId:id
+    })
     setLoading(false);
   };
 
@@ -85,6 +93,7 @@ function ChatView() {
         content: input,
       },
     ]);
+    setUserInput('');
   }
 
   return (
@@ -133,6 +142,7 @@ function ChatView() {
       >
         <div className="flex gap-2">
           <textarea
+            value={userInput}
             placeholder={Lookup.INPUT_PLACEHOLDER}
             onChange={(event) => setUserInput(event.target.value)}
             className="outline-none bg-transparent w-full h-32 max-h-56 resize-none"
