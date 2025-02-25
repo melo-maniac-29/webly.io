@@ -18,7 +18,7 @@ function CodeView() {
 
   const [files, setFiles] = useState(Lookup?.DEFAULT_FILE); // Fixed useState hook
 
-  const {messages, setMessages} = useContext(MessagesContext); //Fixed useContext hook
+  const { messages, setMessages } = useContext(MessagesContext); //Fixed useContext hook
 
   useEffect(() => {
     if (messages?.length > 0) {
