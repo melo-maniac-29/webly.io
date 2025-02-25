@@ -8,9 +8,12 @@ import {
   SandpackPreview,
   SandpackFileExplorer
 } from "@codesandbox/sandpack-react";
+import Lookup from "@/data/Lookup";
 
 function CodeView() {
   const [activeTab, setActiveTab] = useState('code'); // Fixed useState hook
+
+  const[files,setFiles] = useState(Lookup?.DEFAULT_FILE); // Fixed useState hook
 
   return (
     <div>
@@ -30,7 +33,18 @@ function CodeView() {
           </h2>
         </div>
       </div>
-      <SandpackProvider template="react" theme={"dark"}>
+      <SandpackProvider 
+      files={files}
+      template="react" theme={"dark"}
+      customSetup={{
+        dependencies:{
+          ...Lookup.DEPENDANCY
+        }
+      }}
+      options={{
+        externalResources:['https://unpkg.com/@tailwindcss/browser@4']
+      }}
+      >
         <SandpackLayout>
           {activeTab=='code' ? <>
           <SandpackFileExplorer style={{height:'80vh'}} />
