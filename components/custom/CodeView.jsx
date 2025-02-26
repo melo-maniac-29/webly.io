@@ -12,7 +12,7 @@ import Lookup from "@/data/Lookup";
 import axios from "axios";
 import { MessagesContext } from "@/context/MessagesContext";
 import Prompt from "@/data/Prompt";
-import { useMutation } from "convex/react";
+import { useConvex, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useParams } from "next/navigation";
 
@@ -27,6 +27,20 @@ function CodeView() {
   const { messages, setMessages } = useContext(MessagesContext); //Fixed useContext hook for messages
 
   const UpdateFiles= useMutation(api.workspace.UpdateFiles); //Fixed useMutation hook for updating files
+
+  const convex = useConvex(); //Fixed useConvex hook
+
+  useEffect(() => {
+    id&&GetFiles(); //get the files from the database
+  },[id]);
+
+  const GetFiles=async()=>{//function to get the files from the database
+    const result=await convex.query(api.workspace.GetWorkspace,{
+      workspaceId:id
+    });
+    const mergedFiles = { ...Lookup.DEFAULT_FILE, ...result?.fileData };
+    setFiles(mergedFiles);
+  }
 
   useEffect(() => {
     if (messages?.length > 0) {
