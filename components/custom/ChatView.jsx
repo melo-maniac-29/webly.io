@@ -12,6 +12,7 @@ import Lookup from "@/data/Lookup";
 import axios from "axios";
 import Prompt from "@/data/Prompt";
 import ReactMarkdown from "react-markdown";
+import { useSidebar } from "../ui/sidebar";
 
 function ChatView() {
   //used to fetch workspace data by workspacw id
@@ -29,6 +30,8 @@ function ChatView() {
   const [loading, setLoading] = useState(false); //loading state
 
   const UpdateMessages = useMutation(api.workspace.UpdateMessages); //mutation to update the messages
+
+  const{toggleSidebar}=useSidebar();//sidebar toggle
 
   useEffect(() => {
     //useEffect is used to run the function when the component is mounted
@@ -102,7 +105,7 @@ function ChatView() {
 
   return (
     <div className="relative h-[85vh] flex flex-col">
-      <div className="flex-1 overflow-y-scroll scrollbar-hide">
+      <div className="flex-1 overflow-y-scroll scrollbar-hide pl-5">
         {Array.isArray(messages)
           ? messages.map((msg, index) => (
               <div
@@ -171,7 +174,13 @@ function ChatView() {
         )}
       </div>
 
+        
+
       {/* Input section */}
+
+        <div className="flex gap-2 items-end">
+          {userDetail&& <Image src={userDetail?.picture} alt="userImage" width={35} height={35} className="rounded-full cursor-pointer" 
+          onClick={toggleSidebar} />}
       <div
         className="p-5 border rounded-xl max-w-xl w-full mt-3"
         style={{
@@ -195,6 +204,7 @@ function ChatView() {
         <div className="h-5 w-5">
           <Link />
         </div>
+      </div>
       </div>
     </div>
   );

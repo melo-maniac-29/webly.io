@@ -7,7 +7,7 @@ import React from 'react'
 
 function Workspace() {
   return (
-    <div className='p-10'>
+    <div className='p-3 pr-5 mt-3'>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-10'>
 
           <ChatView />
