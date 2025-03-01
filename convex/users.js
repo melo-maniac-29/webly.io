@@ -19,7 +19,8 @@ export const CreateUser=mutation({
                 name:args.name,
                 picture:args.picture,
                 email:args.email,
-                uid:args.uid
+                uid:args.uid,
+                token:55000
             });
             console.log(result);
         }
