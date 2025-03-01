@@ -48,7 +48,7 @@ function Provider({ children }) {
               disableTransitionOnChange
             >
               <Header />
-              <SidebarProvider defaultOpen={true}>
+              <SidebarProvider defaultOpen={false}>
                 <AppSideBar />
                 {children}
               </SidebarProvider>
