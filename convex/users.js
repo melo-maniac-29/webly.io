@@ -20,7 +20,7 @@ export const CreateUser=mutation({
                 picture:args.picture,
                 email:args.email,
                 uid:args.uid,
-                token:55000
+                token:55000  //setting token to 55000 for saas implementation
             });
             console.log(result);
         }
@@ -35,5 +35,19 @@ export const GetUser=query({  //for getting user from database by email id
         const user=await ctx.db.query('users').filter((q)=>q.eq(q.field('email'),args.email)).collect()
         console.log(user)
         return user[0];
+    }
+})
+
+
+export const UpdateToken=mutation({ //for updating the token of the user
+    args:{
+        userId:v.id('users'),
+        token:v.number()
+    },
+    handler:async(ctx,args)=>{
+        const result=await ctx.db.patch(args.userId,{
+            token:args.token
+        });
+        return result;
     }
 })

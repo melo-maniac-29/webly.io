@@ -16,6 +16,8 @@ import { useConvex, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useParams } from "next/navigation";
 import { Loader2Icon } from "lucide-react";
+import { countToken } from "./ChatView";
+import { UserDetailContext } from "@/context/UserDetailContext";
 
 function CodeView() {
   const { id } = useParams(); //get the workspace id from the url
@@ -31,6 +33,10 @@ function CodeView() {
   const convex = useConvex(); //Fixed useConvex hook
 
   const [loading, setLoading] = useState(false); //Fixed useState hook for loading
+
+  const { userDetail, setUserDetail } = useContext(UserDetailContext); //Fixed useContext hook for userDetail
+
+  const UpdateTokens = useMutation(api.users.UpdateToken); //Fixed useMutation hook for updating tokens
 
   useEffect(() => {
     id && GetFiles(); //get the files from the database
@@ -76,6 +82,15 @@ function CodeView() {
       workspaceId: id,
       files: aiResp?.files,
     });
+
+    const token =
+      Number(userDetail?.token) - Number(countToken(JSON.stringify(aiResp))); //update tokens in database
+
+    await UpdateTokens({
+      userId: userDetail?._id,
+      token: token,
+    });
+
     setLoading(false); //set loading to false
   };
 

@@ -14,6 +14,10 @@ import Prompt from "@/data/Prompt";
 import ReactMarkdown from "react-markdown";
 import { useSidebar } from "../ui/sidebar";
 
+export const countToken=(inputText)=>{ //saas token count function
+  return inputText.trim().split(/\s+/).filter(word=>word).length;
+}
+
 function ChatView() {
   //used to fetch workspace data by workspacw id
 
@@ -32,6 +36,8 @@ function ChatView() {
   const UpdateMessages = useMutation(api.workspace.UpdateMessages); //mutation to update the messages
 
   const{toggleSidebar}=useSidebar();//sidebar toggle
+
+  const UpdateTokens = useMutation(api.users.UpdateToken); //mutation to update the token
 
   useEffect(() => {
     //useEffect is used to run the function when the component is mounted
@@ -84,10 +90,19 @@ function ChatView() {
       aiResp,
     ]);
 
+
     await UpdateMessages({
       messages: [...messages, aiResp], //update the messages in the database
       workspaceId: id,
     });
+
+    const token=Number(userDetail?.token)-Number(countToken(JSON.stringify(aiResp))); //update tokens in database
+
+    await UpdateTokens({
+      userId: userDetail?._id,
+      token: token,
+    })
+
     setLoading(false);
   };
 
