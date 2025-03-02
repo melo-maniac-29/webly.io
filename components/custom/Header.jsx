@@ -1,69 +1,73 @@
-"use client"; //client side rendering
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import Colors from "@/data/Colors";
-import { UserDetailContext } from "@/context/UserDetailContext";
-import { useContext } from "react";
-import { useSidebar } from "../ui/sidebar";
-import { usePathname } from "next/navigation";
-import { Link as LinkIcon, LucideDownload, Rocket } from "lucide-react";
-import Link from "next/link"; // Add this import for navigation Link
-import { ActionContext } from "@/context/ActionContext";
+'use client';
+import Image from 'next/image';
+import React, { useContext } from 'react';
+import { Button } from '../ui/button';
+import Colors from '@/data/Colors';
+import { UserDetailContext } from '@/context/UserDetailContext';
+import Link from 'next/link';
+import { Download, Rocket } from 'lucide-react';
+import { useSidebar } from '../ui/sidebar';
+import { usePathname } from 'next/navigation';
+import { ActionContext } from '@/context/ActionContext';
 
 function Header() {
   const { userDetail, setUserDetail } = useContext(UserDetailContext);
-  const { toggleSidebar } = useSidebar();
   const { action, setAction } = useContext(ActionContext);
-  const path = usePathname();
-  console.log(path?.includes("workspace"));
-
-  const onActionBtn = (action) => {
+  const { toggleSidebar } = useSidebar();
+  const pathname = usePathname();
+  const onActionBtn =(actn) => {
     setAction({
-      actionType:action,
-      timeStamp:Date.now()
+      actionType: actn,
+      timeStamp: Date.now()
     })
-  };
 
+  }
   return (
-    <div className="p-4 flex justify-between items-center border-b ">
-      <Link href="/">
-        <img src={"/logo.png"} alt="logo" width={40} height={40} className="rounded-sm" />
+    <div className="p-4 flex justify-between items-center border-b">
+      <Link href={'/'}>
+        <Image src={'/logo.png'} alt="logo" width={40} height={40} />
       </Link>
       {!userDetail?.name ? (
         <div className="flex gap-5">
-          <Button variant="ghost">Sign in</Button>
+          <Button variant="ghost">Sign In</Button>
           <Button
             className="text-white"
-            style={{ backgroundColor: Colors.BLUE }}
+            style={{
+              backgroundColor: Colors.BLUE,
+            }}
           >
-            Get started
+            Get Started
           </Button>
         </div>
       ) : (
-        path?.includes("workspace") && (
-          <div className="flex gap-2 items-center">
-            <Button variant="ghost" onClick={()=>onActionBtn('export')}>
-              <LucideDownload />
-              export
-            </Button>
-            <Button className="bg-blue-500 text-white hover:bg-blue-600"
-            onClick={()=>onActionBtn('deploy')}
-            >
-              <Rocket />
-              Deploy
-            </Button>
-            {userDetail && (
-              <Image
-                src={userDetail?.picture}
-                alt="user"
-                width={40}
-                height={40}
-                className="rounded-full cursor-pointer"
-                onClick={toggleSidebar}
-              />
-            )}
-          </div>
-        )
+        <div className="flex gap-5 items-center">
+          {pathname.includes('/workspace/') && (
+            <>
+              <Button variant="ghost" onClick={() => onActionBtn('export')}>
+                <Download /> Export
+              </Button>
+              <Button
+                onClick={() => onActionBtn('deploy')}
+                className="text-white"
+                style={{
+                  backgroundColor: Colors.BLUE,
+                }}
+              >
+                <Rocket /> Deploy
+              </Button>
+            </>
+          )}
+          {userDetail && (
+            <Image
+              onClick={toggleSidebar}
+              src={userDetail?.picture}
+              alt="userImage"
+              width={40}
+              height={40}
+              className="rounded-full cursor-pointer object-cover"
+            />
+          )}
+        </div>
       )}
     </div>
   );
