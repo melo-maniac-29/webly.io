@@ -11,12 +11,15 @@ import AppSideBar from "@/components/custom/AppSideBar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { ActionContext } from "@/context/ActionContext";
+import { useRouter } from "next/navigation";
 
 function Provider({ children }) {
   const [messages, setMessages] = useState();
   const [userDetail, setUserDetail] = useState();
   const [action, setAction] = useState();
   const convex = useConvex(); //using convex for fetching data from database
+  const router=useRouter();
+  
 
   useEffect(() => {
     IsAuthenticated();
@@ -27,7 +30,9 @@ function Provider({ children }) {
     if (typeof window !== undefined) {
       const user=JSON.parse(localStorage.getItem("user"));
       if(!user){
+        router.push('/');
         return;
+
       }
       //fetch from database
       const result=await convex.query(api.users.GetUser,{
@@ -54,7 +59,7 @@ function Provider({ children }) {
                 disableTransitionOnChange
               >
              
-                <SidebarProvider defaultOpen={false} className="flex justify-center">
+                <SidebarProvider defaultOpen={false} className="flex flex-col justify-center">
                   
                 <Header />
                   

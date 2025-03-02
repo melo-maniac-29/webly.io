@@ -19,6 +19,7 @@ import { Loader2Icon } from "lucide-react";
 import { countToken } from "./ChatView";
 import { UserDetailContext } from "@/context/UserDetailContext";
 import SandpackPreviewClient from "./SandpackPreviewClient";
+import { ActionContext } from "@/context/ActionContext";
 
 function CodeView() {
   const { id } = useParams(); //get the workspace id from the url
@@ -39,9 +40,15 @@ function CodeView() {
 
   const UpdateTokens = useMutation(api.users.UpdateToken); //Fixed useMutation hook for updating tokens
 
+  const{action,setAction}=useContext(ActionContext); //Fixed useContext hook for action
+
   useEffect(() => {
     id && GetFiles(); //get the files from the database
   }, [id]);
+
+  useEffect(() => {
+    setActiveTab('preview');
+  },[action])
 
   const GetFiles = async () => {
     //function to get the files from the database
@@ -139,7 +146,7 @@ function CodeView() {
           },
         }}
         options={{
-          externalResources: ["https://unpkg.com/@tailwindcss/browser@4"],
+          externalResources: ["https://cdn.tailwindcss.com"],
         }}
       >
         <SandpackLayout>

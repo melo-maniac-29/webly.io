@@ -6,7 +6,8 @@ import { UserDetailContext } from "@/context/UserDetailContext";
 import { useContext } from "react";
 import { useSidebar } from "../ui/sidebar";
 import { usePathname } from "next/navigation";
-import { Link, LucideDownload, Rocket } from "lucide-react";
+import { Link as LinkIcon, LucideDownload, Rocket } from "lucide-react";
+import Link from "next/link"; // Add this import for navigation Link
 import { ActionContext } from "@/context/ActionContext";
 
 function Header() {
@@ -24,9 +25,9 @@ function Header() {
   };
 
   return (
-    <div className="p-4 flex justify-between items-center border-b">
+    <div className="p-4 flex justify-between items-center border-b ">
       <Link href="/">
-        <img src={"/logo.png"} alt="logo" width={40} height={40} />
+        <img src={"/logo.png"} alt="logo" width={40} height={40} className="rounded-sm" />
       </Link>
       {!userDetail?.name ? (
         <div className="flex gap-5">
