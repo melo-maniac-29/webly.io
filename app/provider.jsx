@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import { api } from "../convex/_generated/api"; // Adjust path if needed
 import AppSideBar from "@/components/custom/AppSideBar";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 
 function Provider({ children }) {
   const [messages, setMessages] = useState([]);
@@ -39,6 +40,8 @@ function Provider({ children }) {
       <GoogleOAuthProvider
         clientId={process.env.NEXT_PUBLIC_GOOGLE_AUTH_CLIENT_ID_KEY}
       >
+        <PayPalScriptProvider options={{ clientId:process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}>
+
         <UserDetailContext.Provider value={{ userDetail, setUserDetail }}>
           <MessagesContext.Provider value={{ messages, setMessages }}>
             <NextThemesProvider
@@ -48,13 +51,14 @@ function Provider({ children }) {
               disableTransitionOnChange
             >
               <Header />
-              <SidebarProvider defaultOpen={false}>
+              <SidebarProvider defaultOpen={false} className="flex justify-center">
                 <AppSideBar />
                 {children}
               </SidebarProvider>
             </NextThemesProvider>
           </MessagesContext.Provider>
         </UserDetailContext.Provider>
+        </PayPalScriptProvider>
       </GoogleOAuthProvider>
     </div>
   );
