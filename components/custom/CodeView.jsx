@@ -18,6 +18,7 @@ import { useParams } from "next/navigation";
 import { Loader2Icon } from "lucide-react";
 import { countToken } from "./ChatView";
 import { UserDetailContext } from "@/context/UserDetailContext";
+import SandpackPreviewClient from "./SandpackPreviewClient";
 
 function CodeView() {
   const { id } = useParams(); //get the workspace id from the url
@@ -142,19 +143,12 @@ function CodeView() {
         }}
       >
         <SandpackLayout>
-          {activeTab == "code" ? (
-            <>
-              <SandpackFileExplorer style={{ height: "80vh" }} />
-              <SandpackCodeEditor style={{ height: "80vh" }} />
-            </>
-          ) : (
-            <>
-              <SandpackPreview
-                style={{ height: "80vh" }}
-                showNavigator={true}
-              />
-            </>
-          )}
+          {activeTab=='code'?<>
+          <SandpackFileExplorer style={{height:'80vh'}} />
+          <SandpackCodeEditor style={{height:'80vh'}} />
+          </>:<>
+          <SandpackPreviewClient/>
+          </>}
         </SandpackLayout>
       </SandpackProvider>
       {loading && (

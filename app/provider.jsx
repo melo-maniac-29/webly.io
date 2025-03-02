@@ -10,10 +10,12 @@ import { api } from "../convex/_generated/api"; // Adjust path if needed
 import AppSideBar from "@/components/custom/AppSideBar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
+import { ActionContext } from "@/context/ActionContext";
 
 function Provider({ children }) {
-  const [messages, setMessages] = useState([]);
-  const [userDetail, setUserDetail] = useState(null);
+  const [messages, setMessages] = useState();
+  const [userDetail, setUserDetail] = useState();
+  const [action, setAction] = useState();
   const convex = useConvex(); //using convex for fetching data from database
 
   useEffect(() => {
@@ -23,16 +25,16 @@ function Provider({ children }) {
   const IsAuthenticated = async () => {
     //checking if user is authenticated or not
     if (typeof window !== undefined) {
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (user) {
-        //fetch from database
-        const result = await convex.query(api.users.GetUser, {
-          email: user?.email,
-        });
-
-        setUserDetail(result);
-        console.log(result);
+      const user=JSON.parse(localStorage.getItem("user"));
+      if(!user){
+        return;
       }
+      //fetch from database
+      const result=await convex.query(api.users.GetUser,{
+        email:user?.email
+      })
+      setUserDetail(result);
+      console.log(result);
     }
   };
 
@@ -44,18 +46,25 @@ function Provider({ children }) {
         <PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}>
           <UserDetailContext.Provider value={{ userDetail, setUserDetail }}>
             <MessagesContext.Provider value={{ messages, setMessages }}>
+              <ActionContext.Provider value={{action, setAction}}>
               <NextThemesProvider
                 attribute="class"
                 defaultTheme="dark"
                 enableSystem
                 disableTransitionOnChange
               >
-                <Header />
+             
                 <SidebarProvider defaultOpen={false} className="flex justify-center">
-                  <AppSideBar />
+                  
+                <Header />
+                  
                   {children}
+                  <div className="absolute">
+                  <AppSideBar />
+                  </div>
                 </SidebarProvider>
               </NextThemesProvider>
+              </ActionContext.Provider>
             </MessagesContext.Provider>
           </UserDetailContext.Provider>
         </PayPalScriptProvider>
