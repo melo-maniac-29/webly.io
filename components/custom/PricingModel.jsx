@@ -15,7 +15,7 @@ function PricingModel() {
   const[selectedOption,setSelectedOption]=useState()
 
   const onPaymentSuccess=async()=>{
-    const token=userDetail?.token+Number(pricing.value)
+    const token=userDetail?.token+Number(selectedOption.value)
     console.log(token)
     await UpdateToken({
       token:token,
@@ -26,7 +26,7 @@ function PricingModel() {
   return (
     <div className='mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5'>
       {Lookup.PRICING_OPTIONS.map((pricing,index)=>(
-        <div className='border p-7 rounded-xl flex flex-col gap-3 ' key={index}>
+        <div className='border p-7 rounded-xl flex flex-col gap-3 ' key={index} onClick={()=>{setSelectedOption(pricing); console.log(pricing.value)}}>
             <h2 className='font-bold text-2xl'>{pricing.name}</h2>
             <h2 className='font-medium text-lg'>{pricing.tokens} Tokens</h2>
             <p className='text-gray-400'>{pricing.desc}</p>
