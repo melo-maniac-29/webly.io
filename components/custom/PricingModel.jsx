@@ -36,6 +36,7 @@ function PricingModel() {
             {/* <Button>Upgrade to{pricing.name}</Button> */}
             <PayPalButtons 
             disabled={!userDetail}
+            onClick={()=>{selectedOption(pricing); console.log(pricing.value)}}
             style={{ layout: "horizontal" }} 
             onApprove={()=>onPaymentSuccess()}
             onCancel={()=>console.log('Payment Cancelled')}

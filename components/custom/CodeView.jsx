@@ -91,6 +91,11 @@ function CodeView() {
       token: token,
     });
 
+    setUserDetail(prev=>({
+      ...prev,
+      token:token
+    }))
+
     setLoading(false); //set loading to false
   };
 

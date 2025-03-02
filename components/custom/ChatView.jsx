@@ -13,6 +13,7 @@ import axios from "axios";
 import Prompt from "@/data/Prompt";
 import ReactMarkdown from "react-markdown";
 import { useSidebar } from "../ui/sidebar";
+import { toast } from "sonner";
 
 export const countToken=(inputText)=>{ //saas token count function
   return inputText.trim().split(/\s+/).filter(word=>word).length;
@@ -98,6 +99,11 @@ function ChatView() {
 
     const token=Number(userDetail?.token)-Number(countToken(JSON.stringify(aiResp))); //update tokens in database
 
+    setUserDetail(prev=>({
+      ...prev,
+      token:token
+    }))
+
     await UpdateTokens({
       userId: userDetail?._id,
       token: token,
@@ -107,6 +113,10 @@ function ChatView() {
   };
 
   const onGenerate = (input) => {
+    if(userDetail?.token<10){
+      toast('You do not have enough tokens to generate response')
+      return ;
+    }
     //function to generate the response for the user input continuously
     setMessages((prev) => [
       ...prev,
