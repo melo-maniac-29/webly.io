@@ -12,9 +12,9 @@ function PricingModel() {
 
   const UpdateToken=useMutation(api.users.UpdateToken)
 
-  // const[selectedOption,setSelectedOption]=useState()
+  const[selectedOption,setSelectedOption]=useState()
 
-  const onPaymentSuccess=async(pricing)=>{
+  const onPaymentSuccess=async()=>{
     const token=userDetail?.token+Number(pricing.value)
     console.log(token)
     await UpdateToken({
@@ -37,7 +37,7 @@ function PricingModel() {
             <PayPalButtons 
             disabled={!userDetail}
             style={{ layout: "horizontal" }} 
-            onApprove={()=>onPaymentSuccess(pricing)}
+            onApprove={()=>onPaymentSuccess()}
             onCancel={()=>console.log('Payment Cancelled')}
             createOrder={(data, actions) => {
               return actions.order.create({
