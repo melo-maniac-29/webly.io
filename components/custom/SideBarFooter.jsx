@@ -8,14 +8,6 @@ function SideBarFooter() {
   const router = useRouter();
   const options = [
     {
-      name: 'Settings',
-      icon: Settings,
-    },
-    {
-      name: 'Help Center',
-      icon: HelpCircle,
-    },
-    {
       name: 'My Subscription',
       icon: Wallet,
       path: '/pricing',
