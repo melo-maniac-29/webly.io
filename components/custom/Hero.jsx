@@ -73,12 +73,23 @@ function Hero() {
     };
     setMessages(msg);
 
-    const workspaceId = await CreateWorkspace({
-      user: userDetail._id,
-      messages: [msg],
-    });
-    console.log(workspaceId);
-    router.push('/workspace/' + workspaceId);
+    // Make sure we have a valid user ID before creating workspace
+    if (!userDetail?._id) {
+      toast.error("User session is incomplete. Please sign in again.");
+      return;
+    }
+
+    try {
+      const workspaceId = await CreateWorkspace({
+        user: userDetail._id,  // Ensure user ID is passed
+        messages: [msg],
+      });
+      console.log(workspaceId);
+      router.push('/workspace/' + workspaceId);
+    } catch (error) {
+      console.error("Error creating workspace:", error);
+      toast.error("Failed to create workspace. Please try again.");
+    }
   };
 
   const container = {
