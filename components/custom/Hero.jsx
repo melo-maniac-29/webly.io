@@ -248,15 +248,73 @@ function Hero() {
         />
         
         <div className="flex gap-2 relative">
-          <textarea
-            ref={textareaRef}
-            placeholder={Lookup.INPUT_PLACEHOLDER}
-            className="outline-none bg-transparent w-full h-24 md:h-32 max-h-56 resize-none text-white placeholder-gray-400"
-            onChange={(event) => setUserInput(event.target.value)}
-            value={userInput}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-          />
+          <div className="relative w-full group">
+            {/* Floating label */}
+            <motion.div
+              className={`absolute pointer-events-none transition-all duration-200 ${
+                userInput ? 'text-xs -top-5 left-1 text-blue-400' : 'text-base top-2 left-3 text-gray-400'
+              }`}
+              animate={{
+                y: userInput ? -4 : 0,
+                opacity: isFocused ? 1 : 0.7
+              }}
+            >
+              {Lookup.INPUT_PLACEHOLDER}
+            </motion.div>
+            
+            <textarea
+              ref={textareaRef}
+              placeholder=""
+              className="outline-none bg-transparent w-full min-h-[120px] max-h-64 resize-none text-white px-3 py-2 border-l-2 transition-colors"
+              style={{
+                borderColor: isFocused ? 'rgba(59, 130, 246, 0.5)' : 'rgba(75, 85, 99, 0.2)'
+              }}
+              onChange={(event) => {
+                setUserInput(event.target.value);
+                // Auto-resize functionality
+                event.target.style.height = 'auto';
+                event.target.style.height = Math.min(event.target.scrollHeight, 256) + 'px';
+              }}
+              value={userInput}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              aria-label={Lookup.INPUT_PLACEHOLDER}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                  onGenerate(userInput);
+                }
+              }}
+            />
+            
+            {/* Character count and shortcuts */}
+            <div className="flex items-center justify-between text-xs text-gray-500 mt-1 px-1">
+              <motion.div 
+                animate={{ opacity: userInput ? 1 : 0 }}
+                className="flex items-center gap-1"
+              >
+                <span>{userInput.length}</span>
+                <span>characters</span>
+              </motion.div>
+              
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: isFocused ? 1 : 0 }}
+                className="text-xs text-gray-500"
+              >
+                Press <kbd className="px-1 py-0.5 bg-gray-800 rounded text-xs">Ctrl+Enter</kbd> to submit
+              </motion.div>
+            </div>
+            
+            {/* Visual typing indicator */}
+            {isFocused && (
+              <motion.div 
+                className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500"
+                initial={{ width: 0 }}
+                animate={{ width: userInput ? `${Math.min(100, userInput.length / 2)}%` : 0 }}
+                transition={{ type: "spring", stiffness: 100, damping: 15 }}
+              />
+            )}
+          </div>
           
           <AnimatePresence>
             {userInput && (
@@ -271,6 +329,7 @@ function Hero() {
                 <button
                   onClick={() => onGenerate(userInput)}
                   className="relative bg-gradient-to-r from-blue-500 to-purple-600 p-2 w-10 h-10 md:w-12 md:h-12 rounded-md cursor-pointer shadow-lg group overflow-hidden"
+                  aria-label="Generate content"
                 >
                   <motion.div 
                     className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-500"

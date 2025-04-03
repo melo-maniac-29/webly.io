@@ -5,9 +5,12 @@ import { useConvex } from "convex/react";
 import React, { useContext, useEffect, useState } from "react";
 import { useSidebar } from "../ui/sidebar";
 import Link from "next/link";
-import { Clock, MessageSquare, Plus, Search, AlertCircle } from "lucide-react";
+import { Clock, MessageSquare, Plus, Search, AlertCircle, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
+
+// Cache duration in milliseconds (15 minutes)
+const CACHE_EXPIRATION = 15 * 60 * 1000;
 
 function WorkspaceHistory() {
   const { userDetail } = useContext(UserDetailContext);
@@ -18,23 +21,89 @@ function WorkspaceHistory() {
   const { toggleSidebar } = useSidebar();
   const [searchQuery, setSearchQuery] = useState("");
   const pathname = usePathname();
+  const [lastFetched, setLastFetched] = useState(null);
 
+  // Load data from cache or API when component mounts or userDetail changes
   useEffect(() => {
-    // Only call the API if userDetail exists and has an _id
     if (userDetail && userDetail._id) {
-      GetAllWorkspace();
+      loadWorkspaces();
     }
   }, [userDetail]);
 
-  const GetAllWorkspace = async () => {
+  // Load workspaces from cache or fetch from API
+  const loadWorkspaces = async () => {
+    if (!userDetail?._id) return;
+    
+    // Try to get data from localStorage first
+    const cachedData = getFromCache(userDetail._id);
+    
+    if (cachedData) {
+      // Use cached data while checking if it needs refresh
+      setWorkspaceList(cachedData.data);
+      setLastFetched(cachedData.timestamp);
+      
+      // If cache is still fresh, don't fetch again
+      if (!isCacheExpired(cachedData.timestamp)) {
+        return;
+      }
+      
+      // If we've reached here, cache exists but is expired
+      // We'll refresh in the background without showing loading state
+      fetchWorkspaces(false);
+    } else {
+      // No cache exists, fetch with loading state
+      fetchWorkspaces(true);
+    }
+  };
+
+  // Check if cache is expired
+  const isCacheExpired = (timestamp) => {
+    return Date.now() - timestamp > CACHE_EXPIRATION;
+  };
+
+  // Get data from cache
+  const getFromCache = (userId) => {
+    if (typeof window === 'undefined') return null;
+    
     try {
-      setIsLoading(true);
+      const cachedItem = localStorage.getItem(`workspaces-${userId}`);
+      if (!cachedItem) return null;
+      
+      const parsed = JSON.parse(cachedItem);
+      return parsed;
+    } catch (error) {
+      console.error("Error reading from cache:", error);
+      return null;
+    }
+  };
+
+  // Save data to cache
+  const saveToCache = (userId, data) => {
+    if (typeof window === 'undefined') return;
+    
+    try {
+      const cacheItem = {
+        timestamp: Date.now(),
+        data: data
+      };
+      localStorage.setItem(`workspaces-${userId}`, JSON.stringify(cacheItem));
+    } catch (error) {
+      console.error("Error saving to cache:", error);
+    }
+  };
+
+  // Fetch workspaces from API
+  const fetchWorkspaces = async (showLoading = true) => {
+    try {
+      if (showLoading) {
+        setIsLoading(true);
+      }
       setError(null);
       
       // Ensure userId is a valid value
       if (!userDetail?._id) {
         console.warn("User ID not available, skipping workspace fetch");
-        setIsLoading(false);
+        if (showLoading) setIsLoading(false);
         return;
       }
       
@@ -42,13 +111,25 @@ function WorkspaceHistory() {
         userId: userDetail._id,
       });
       
+      // Update state with new data
       setWorkspaceList(result || []);
+      setLastFetched(Date.now());
+      
+      // Save to cache
+      saveToCache(userDetail._id, result || []);
     } catch (err) {
       console.error("Error fetching workspaces:", err);
       setError("Failed to load workspaces");
     } finally {
-      setIsLoading(false);
+      if (showLoading) {
+        setIsLoading(false);
+      }
     }
+  };
+
+  // Force refresh from API
+  const handleRefresh = () => {
+    fetchWorkspaces(true);
   };
 
   // Filter workspaces based on search query
@@ -65,12 +146,23 @@ function WorkspaceHistory() {
           <MessageSquare size={14} className="mr-2 text-blue-400" />
           Your Chats
         </h2>
-        <motion.div 
-          className="text-xs text-gray-400 bg-gray-800/50 px-2 py-1 rounded-full"
-          whileHover={{ scale: 1.05 }}
-        >
-          {workspaceList?.length || 0} chat{workspaceList?.length !== 1 ? 's' : ''}
-        </motion.div>
+        <div className="flex items-center gap-2">
+          <motion.button
+            whileHover={{ rotate: 180 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={handleRefresh}
+            className="text-gray-400 hover:text-blue-400 transition-colors"
+            title="Refresh chat list"
+          >
+            <RefreshCw size={14} className={isLoading ? "animate-spin" : ""} />
+          </motion.button>
+          <motion.div 
+            className="text-xs text-gray-400 bg-gray-800/50 px-2 py-1 rounded-full"
+            whileHover={{ scale: 1.05 }}
+          >
+            {workspaceList?.length || 0} chat{workspaceList?.length !== 1 ? 's' : ''}
+          </motion.div>
+        </div>
       </div>
 
       {/* Search input */}
@@ -84,6 +176,13 @@ function WorkspaceHistory() {
           className="w-full bg-gray-800/50 border border-gray-700/50 rounded-md py-1.5 pl-9 pr-3 text-sm outline-none focus:border-blue-500/50 transition-colors"
         />
       </div>
+
+      {/* Last fetched indicator */}
+      {lastFetched && (
+        <div className="text-xs text-gray-500 italic text-right">
+          Last updated: {new Date(lastFetched).toLocaleTimeString()}
+        </div>
+      )}
 
       <div className="space-y-1 mt-3 min-h-[200px]">
         <AnimatePresence>
@@ -105,7 +204,7 @@ function WorkspaceHistory() {
               <AlertCircle size={20} className="mx-auto" />
               <p className="text-sm mt-2">{error}</p>
               <button 
-                onClick={GetAllWorkspace} 
+                onClick={handleRefresh} 
                 className="mt-3 text-xs text-blue-400 hover:underline"
               >
                 Try Again
