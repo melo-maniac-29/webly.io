@@ -52,11 +52,14 @@ export function Provider({ children }) {
                 <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
                   <TooltipProvider>
                     <SidebarProvider>
-                      <div className="absolute">
-                        <AppSideBar />
-                      </div>
+                      {/* Only render the sidebar when user is signed in */}
+                      {userDetail && (
+                        <div className="absolute">
+                          <AppSideBar />
+                        </div>
+                      )}
                       <Header />
-                      <div className="pl-0 md:pl-4 transition-all duration-300">
+                      <div className={`transition-all duration-300 ${userDetail ? 'pl-0 md:pl-4' : ''}`}>
                         {children}
                       </div>
                     </SidebarProvider>

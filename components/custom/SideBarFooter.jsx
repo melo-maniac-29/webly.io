@@ -14,8 +14,6 @@ function SideBarFooter() {
   // Menu items
   const menuItems = [
     { name: 'Theme', icon: theme === 'dark' ? <Moon size={18} /> : <Sun size={18} /> },
-    { name: 'Settings', icon: <Settings size={18} /> },
-    { name: 'Help', icon: <Info size={18} /> },
     { name: 'Sign Out', icon: <LogOut size={18} /> },
   ];
   
