@@ -24,6 +24,7 @@
     "clsx": "^2.1.1",
     "convex": "^1.19.5",
     "dedent": "^1.5.3",
+    "framer-motion": "^12.6.3",
     "fs": "^0.0.1-security",
     "lucide-react": "^0.475.0",
     "next": "15.1.7",
