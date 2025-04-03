@@ -15,6 +15,121 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 
 function AppSideBar() {
+  // Custom SVG Logo for sidebar with fixed coordinates
+  const SidebarLogoSVG = () => {
+    // Fixed coordinates for sparkles
+    const sparklePoints = [
+      { cx: 85, cy: 30, delay: 0 },
+      { cx: 15, cy: 30, delay: 0.8 }
+    ];
+    
+    return (
+      <motion.svg 
+        width="30" 
+        height="30" 
+        viewBox="0 0 100 100" 
+        fill="none" 
+        xmlns="http://www.w3.org/2000/svg"
+        className="drop-shadow-lg z-10"
+        suppressHydrationWarning={true}
+      >
+        <motion.circle 
+          cx="50" 
+          cy="50" 
+          r="45" 
+          fill="url(#sidebarLogoGradient)"
+          animate={{ 
+            scale: [0.95, 1, 0.95],
+          }}
+          transition={{ 
+            duration: 3, 
+            repeat: Infinity, 
+            ease: "easeInOut" 
+          }}
+        />
+        
+        <motion.path 
+          d="M35 30L20 50L35 70" 
+          stroke="white" 
+          strokeWidth="6" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 1.5 }}
+        />
+        
+        <motion.path 
+          d="M65 30L80 50L65 70" 
+          stroke="white" 
+          strokeWidth="6" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 1.5, delay: 0.3 }}
+        />
+        
+        <motion.path 
+          d="M40 42L45 58L50 42L55 58L60 42" 
+          stroke="white" 
+          strokeWidth="6" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ duration: 1.5, delay: 0.6 }}
+        />
+        
+        {/* Inner glow */}
+        <motion.circle
+          cx="50"
+          cy="50"
+          r="25"
+          fill="url(#sidebarInnerGlow)"
+          initial={{ opacity: 0.3 }}
+          animate={{ opacity: [0.3, 0.6, 0.3] }}
+          transition={{ duration: 3, repeat: Infinity }}
+        />
+        
+        {/* Fixed position sparkles */}
+        {sparklePoints.map((point, i) => (
+          <motion.circle 
+            key={i}
+            cx={point.cx}
+            cy={point.cy}
+            r="2"
+            fill="white"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ 
+              scale: [0, 1.5, 0],
+              opacity: [0, 1, 0]
+            }}
+            transition={{ 
+              duration: 2,
+              repeat: Infinity,
+              delay: point.delay,
+              ease: "easeOut" 
+            }}
+          />
+        ))}
+        
+        <defs>
+          <linearGradient id="sidebarLogoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#3B82F6" />
+            <stop offset="50%" stopColor="#8B5CF6" />
+            <stop offset="100%" stopColor="#EC4899" />
+          </linearGradient>
+          
+          <radialGradient id="sidebarInnerGlow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+            <stop offset="0%" stopColor="rgba(255,255,255,0.3)" />
+            <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+          </radialGradient>
+        </defs>
+      </motion.svg>
+    );
+  };
+
   return (
     <Sidebar>
       <SidebarHeader className="p-5 relative">
@@ -27,7 +142,7 @@ function AppSideBar() {
             whileTap={{ scale: 0.9 }}
             className="relative"
           >
-            <Image src={'/logo.png'} alt="logo" width={30} height={30} className="drop-shadow-lg z-10" />
+            <SidebarLogoSVG />
             <motion.div 
               className="absolute -inset-1 bg-blue-500/20 rounded-full blur-sm"
               animate={{ scale: [1, 1.2, 1] }}
