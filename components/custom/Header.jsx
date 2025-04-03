@@ -37,8 +37,8 @@ function Header() {
   
   // Navigation items
   const navItems = [
-    { name: 'Features', icon: Star },
-    { name: 'Templates', icon: Terminal },
+    { name: 'Features', icon: Star, href: '/features' },
+    { name: 'Templates', icon: Terminal, href: '/templates' }, // Adding missing slash
     { name: 'Pricing', icon: Globe, href: '/pricing' }
   ];
   
