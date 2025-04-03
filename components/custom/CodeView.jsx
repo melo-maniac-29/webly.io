@@ -79,16 +79,22 @@ function CodeView() {
       files: aiResp?.files,
     });
 
-    const token = Number(userDetail?.token) - Number(countToken(JSON.stringify(aiResp)));
+    let token = Number(userDetail?.token) - Number(countToken(JSON.stringify(aiResp)));
 
+    // First set token to 0 if it would become negative
+    if (token < 0) {
+      token = 0;
+    }
+
+    // Then always update both database and user context with the valid token value
     await UpdateTokens({
       userId: userDetail?._id,
       token: token,
     });
 
-    setUserDetail(prev=>({
+    setUserDetail(prev => ({
       ...prev,
-      token:token
+      token: token
     }));
 
     setLoading(false);

@@ -4,7 +4,7 @@ import { UserDetailContext } from "@/context/UserDetailContext";
 import { api } from "@/convex/_generated/api";
 import Colors from "@/data/Colors";
 import { useConvex, useMutation } from "convex/react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation"; // Add useRouter import
 import React, { useContext, useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { ArrowRight, Bot, Link, Loader2Icon, Send, Sparkles, User } from "lucide-react";
@@ -23,11 +23,13 @@ export const countToken = (inputText) => {
 
 function ChatView() {
   const { id } = useParams();
+  const router = useRouter(); // Initialize router
   const convex = useConvex();
   const { messages, setMessages } = useContext(MessagesContext);
   const { userDetail, setUserDetail } = useContext(UserDetailContext);
   const [userInput, setUserInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showZeroTokensAlert, setShowZeroTokensAlert] = useState(false);
   const UpdateMessages = useMutation(api.workspace.UpdateMessages);
   const { toggleSidebar } = useSidebar();
   const UpdateTokens = useMutation(api.users.UpdateToken);
@@ -38,6 +40,13 @@ function ChatView() {
   useEffect(() => {
     id && GetWorkspaceData();
   }, [id]);
+
+  // Check if tokens are at zero and show alert
+  useEffect(() => {
+    if (userDetail?.token === 0) {
+      setShowZeroTokensAlert(true);
+    }
+  }, [userDetail?.token]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -99,13 +108,20 @@ function ChatView() {
       workspaceId: id,
     });
 
-    const token = Number(userDetail?.token) - Number(countToken(JSON.stringify(aiResp)));
+    let token = Number(userDetail?.token) - Number(countToken(JSON.stringify(aiResp)));
 
+    // First set token to 0 if it would become negative
+    if (token < 0) {
+      token = 0;
+    }
+
+    // Then always update userDetail state with the valid token value
     setUserDetail(prev => ({
       ...prev,
       token: token
     }));
 
+    // Always update the database with the valid token value
     await UpdateTokens({
       userId: userDetail?._id,
       token: token,
@@ -321,14 +337,17 @@ function ChatView() {
           <div className="relative flex-1">
             <textarea
               value={userInput}
-              placeholder={Lookup.INPUT_PLACEHOLDER}
+              placeholder={userDetail?.token === 0 ? "Out of tokens - Purchase more to continue" : Lookup.INPUT_PLACEHOLDER}
               onChange={(event) => setUserInput(event.target.value)}
               onKeyDown={handleKeyPress}
-              className="w-full resize-none bg-gray-800/50 border border-gray-700/50 rounded-lg p-3 pr-12 outline-none focus:border-blue-500/50 transition-colors min-h-[80px] max-h-32 placeholder-gray-500 text-gray-200"
+              disabled={userDetail?.token === 0}
+              className={`w-full resize-none bg-gray-800/50 border border-gray-700/50 rounded-lg p-3 pr-12 outline-none transition-colors min-h-[80px] max-h-32 placeholder-gray-500 text-gray-200 ${
+                userDetail?.token === 0 ? "opacity-60 cursor-not-allowed" : "focus:border-blue-500/50"
+              }`}
             />
             
             <AnimatePresence>
-              {userInput && (
+              {userInput && userDetail?.token > 0 && (
                 <motion.button
                   onClick={() => onGenerate(userInput)}
                   className="absolute right-3 bottom-3 bg-gradient-to-r from-blue-500 to-purple-600 p-2 rounded-md text-white shadow-lg"
@@ -349,16 +368,85 @@ function ChatView() {
           <span>Shift + Enter for new line</span>
           {userDetail?.token < 50 && (
             <motion.div 
-              className="text-yellow-500 flex items-center gap-1"
+              className={`flex items-center gap-1 ${userDetail?.token === 0 ? "text-red-500" : "text-yellow-500"}`}
               animate={{ opacity: [0.7, 1, 0.7] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
               <Sparkles size={10} />
-              <span>Low on tokens</span>
+              <span>{userDetail?.token === 0 ? "Out of tokens" : "Low on tokens"}</span>
             </motion.div>
           )}
         </div>
       </div>
+      
+      {/* Zero Tokens Alert */}
+      <AnimatePresence>
+        {showZeroTokensAlert && (
+          <motion.div
+            className="absolute inset-0 bg-gray-900/90 backdrop-blur-sm flex items-center justify-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <motion.div
+              className="bg-gray-800 border border-gray-700 p-6 rounded-xl max-w-md mx-auto shadow-xl"
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="text-center">
+                <motion.div
+                  className="inline-block mb-4"
+                  animate={{ 
+                    rotate: [0, 10, 0, -10, 0],
+                    scale: [1, 1.1, 1] 
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <Sparkles size={48} className="text-yellow-500" />
+                </motion.div>
+                
+                <h2 className="text-xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-red-400 to-yellow-400">
+                  You're out of tokens!
+                </h2>
+                
+                <p className="text-gray-300 mb-4">
+                  You've used all your available tokens. Purchase more to continue generating AI responses.
+                </p>
+                
+                <div className="space-y-3">
+                  <Button
+                    variant="gradient"
+                    className="w-full text-white relative overflow-hidden group"
+                    onClick={() => {
+                      setShowZeroTokensAlert(false); // Close the modal
+                      router.push('/pricing'); // Navigate to pricing page
+                    }}
+                  >
+                    <span className="relative z-10">Purchase Tokens</span>
+                    <motion.div 
+                      className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-500"
+                      initial={{ x: '-100%' }}
+                      animate={{ x: 0 }}
+                      transition={{ type: "spring", stiffness: 100, damping: 15 }}
+                    />
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => setShowZeroTokensAlert(false)}
+                  >
+                    Dismiss
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
