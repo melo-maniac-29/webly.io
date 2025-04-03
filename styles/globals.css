@@ -1,0 +1,10 @@
+/* ...existing code... */
+
+/* Utility for sidebar transitions */
+.sidebar-right, .sidebar-left {
+  will-change: transform;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+/* ...existing code... */

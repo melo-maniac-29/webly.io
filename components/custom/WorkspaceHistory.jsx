@@ -5,28 +5,50 @@ import { useConvex } from "convex/react";
 import React, { useContext, useEffect, useState } from "react";
 import { useSidebar } from "../ui/sidebar";
 import Link from "next/link";
-import { Clock, MessageSquare, Plus, Search } from "lucide-react";
+import { Clock, MessageSquare, Plus, Search, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 
 function WorkspaceHistory() {
   const { userDetail } = useContext(UserDetailContext);
   const convex = useConvex();
-  const [workspaceList, setWorkspaceList] = useState();
+  const [workspaceList, setWorkspaceList] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const { toggleSidebar } = useSidebar();
   const [searchQuery, setSearchQuery] = useState("");
   const pathname = usePathname();
 
   useEffect(() => {
-    userDetail && GetAllWorkspace();
+    // Only call the API if userDetail exists and has an _id
+    if (userDetail && userDetail._id) {
+      GetAllWorkspace();
+    }
   }, [userDetail]);
 
   const GetAllWorkspace = async () => {
-    const result = await convex.query(api.workspace.GetAllWorkspaces, {
-      userId: userDetail?._id,
-    });
-    setWorkspaceList(result);
-    console.log(result);
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // Ensure userId is a valid value
+      if (!userDetail?._id) {
+        console.warn("User ID not available, skipping workspace fetch");
+        setIsLoading(false);
+        return;
+      }
+      
+      const result = await convex.query(api.workspace.GetAllWorkspaces, {
+        userId: userDetail._id,
+      });
+      
+      setWorkspaceList(result || []);
+    } catch (err) {
+      console.error("Error fetching workspaces:", err);
+      setError("Failed to load workspaces");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Filter workspaces based on search query
@@ -63,9 +85,33 @@ function WorkspaceHistory() {
         />
       </div>
 
-      <div className="space-y-1 mt-3">
+      <div className="space-y-1 mt-3 min-h-[200px]">
         <AnimatePresence>
-          {filteredWorkspaces && filteredWorkspaces.length > 0 ? (
+          {isLoading ? (
+            <motion.div 
+              className="text-center py-4 text-gray-500"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <Clock size={20} className="mx-auto text-gray-400 animate-spin" />
+              <p className="text-sm mt-2">Loading chats...</p>
+            </motion.div>
+          ) : error ? (
+            <motion.div 
+              className="text-center py-4 text-red-400"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <AlertCircle size={20} className="mx-auto" />
+              <p className="text-sm mt-2">{error}</p>
+              <button 
+                onClick={GetAllWorkspace} 
+                className="mt-3 text-xs text-blue-400 hover:underline"
+              >
+                Try Again
+              </button>
+            </motion.div>
+          ) : filteredWorkspaces && filteredWorkspaces.length > 0 ? (
             filteredWorkspaces.map((workspace, index) => {
               const isActive = pathname.includes(workspace?._id);
               
@@ -111,7 +157,7 @@ function WorkspaceHistory() {
             })
           ) : (
             <motion.div 
-              className="text-center py-8 text-gray-500"
+              className="text-center py-4 text-gray-500"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
@@ -121,15 +167,10 @@ function WorkspaceHistory() {
                   <Search size={20} className="mx-auto text-gray-400" />
                   <p className="text-sm">No chats found</p>
                 </div>
-              ) : workspaceList?.length === 0 ? (
+              ) : (
                 <div className="space-y-2">
                   <Plus size={20} className="mx-auto text-gray-400" />
                   <p className="text-sm">Start a new chat</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <Clock size={20} className="mx-auto text-gray-400 animate-spin" />
-                  <p className="text-sm">Loading chats...</p>
                 </div>
               )}
             </motion.div>

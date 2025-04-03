@@ -1,20 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarHeader,
+  useSidebar,
 } from '@/components/ui/sidebar';
-import Image from 'next/image';
 import { Button } from '../ui/button';
-import { MessageCircleCodeIcon, Sparkles, Code, FileCode, Menu } from 'lucide-react';
+import { MessageCircleCodeIcon, Sparkles, Code, FileCode, Menu, ArrowLeftCircle } from 'lucide-react';
 import WorkspaceHistory from './WorkspaceHistory';
 import SideBarFooter from './SideBarFooter';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 
 function AppSideBar() {
+  const { isOpen, setIsOpen } = useSidebar();
+  
   // Custom SVG Logo for sidebar with fixed coordinates
   const SidebarLogoSVG = () => {
     // Fixed coordinates for sparkles
@@ -71,7 +73,7 @@ function AppSideBar() {
         />
         
         <motion.path 
-          d="M40 42L45 58L50 42L55 58L60 42" 
+          d="M40 42L45 58L50 42L55 58L50 42" 
           stroke="white" 
           strokeWidth="6" 
           strokeLinecap="round" 
@@ -131,8 +133,35 @@ function AppSideBar() {
   };
 
   return (
-    <Sidebar>
-      <SidebarHeader className="p-5 relative">
+    <Sidebar side="right">
+      {/* Close button that appears when sidebar is hovered */}
+      {isOpen && (
+        <motion.button
+          className="absolute -left-4 top-1/2 z-10 transform -translate-y-1/2 bg-blue-500 text-white p-2 rounded-full shadow-lg"
+          onClick={() => setIsOpen(false)}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 20 }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <ArrowLeftCircle className="h-5 w-5" />
+        </motion.button>
+      )}
+      
+      {/* Sidebar indicator for when sidebar is closed */}
+      {!isOpen && (
+        <motion.div 
+          className="fixed right-0 top-1/2 transform -translate-y-1/2 z-40"
+          initial={{ opacity: 0.4 }}
+          animate={{ opacity: [0.4, 0.8, 0.4] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <div className="bg-blue-500/20 backdrop-blur-sm h-24 w-2 rounded-l-md border-l border-t border-b border-blue-500/30" />
+        </motion.div>
+      )}
+      
+      <SidebarHeader className="p-5 relative flex-shrink-0">
         {/* Background accent */}
         <div className="absolute inset-0 bg-gradient-to-b from-blue-500/10 to-transparent" />
         
@@ -175,7 +204,8 @@ function AppSideBar() {
         </Link>
       </SidebarHeader>
 
-      <SidebarContent className="scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent px-4">
+      {/* Add a fixed height and overflow auto to the content area */}
+      <SidebarContent className="flex-1 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent px-4 overflow-y-auto" style={{ height: 'calc(100vh - 230px)' }}>
         <div className="border-b border-gray-800 pb-3 mb-2">
           <div className="flex items-center mb-4">
             <Menu size={14} className="mr-2 text-gray-400" />
@@ -207,7 +237,8 @@ function AppSideBar() {
         </SidebarGroup>
       </SidebarContent>
       
-      <SidebarFooter className="bg-gray-900/50 backdrop-blur-sm border-t border-gray-800">
+      {/* Make footer sticky and always visible */}
+      <SidebarFooter className="bg-gray-900/50 backdrop-blur-sm border-t border-gray-800 flex-shrink-0 sticky bottom-0 mt-auto">
         <SideBarFooter />
       </SidebarFooter>
     </Sidebar>

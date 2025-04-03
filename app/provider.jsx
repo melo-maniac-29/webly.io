@@ -1,74 +1,65 @@
-"use client"; //client side rendering
-import React, { use, useState, useEffect } from "react"; //for dark theme providing after installing npm dark theme mode do this
-import { ThemeProvider as NextThemesProvider } from "next-themes";
+"use client"; 
+import React, { useState, useEffect } from "react";
+import { ThemeProvider } from "next-themes";
 import Header from "@/components/custom/Header";
-import { MessagesContext } from "@/context/MessagesContext";
-import { UserDetailContext } from "@/context/UserDetailContext";
-import { GoogleOAuthProvider } from "@react-oauth/google";
 import { useConvex } from "convex/react";
-import { api } from "../convex/_generated/api"; // Adjust path if needed
+import { api } from "../convex/_generated/api";
 import AppSideBar from "@/components/custom/AppSideBar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
-import { ActionContext } from "@/context/ActionContext";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
-function Provider({ children }) {
+// Context imports
+import { MessagesContext } from '@/context/MessagesContext';
+import { UserDetailContext } from '@/context/UserDetailContext';
+import { ActionContext } from '@/context/ActionContext';
+
+export function Provider({ children }) {
   const [messages, setMessages] = useState();
   const [userDetail, setUserDetail] = useState();
   const [action, setAction] = useState();
-  const convex = useConvex(); //using convex for fetching data from database
-  const router=useRouter();
+  const convex = useConvex();
+  const router = useRouter();
   
-
   useEffect(() => {
     IsAuthenticated();
   }, []);
 
   const IsAuthenticated = async () => {
-    //checking if user is authenticated or not
     if (typeof window !== undefined) {
-      const user=JSON.parse(localStorage.getItem("user"));
+      const user = JSON.parse(localStorage.getItem("user"));
       if(!user){
         router.push('/');
         return;
-
       }
-      //fetch from database
-      const result=await convex.query(api.users.GetUser,{
-        email:user?.email
-      })
+      const result = await convex.query(api.users.GetUser, {
+        email: user?.email
+      });
       setUserDetail(result);
-      console.log(result);
     }
   };
 
   return (
     <div>
-      <GoogleOAuthProvider
-        clientId={process.env.NEXT_PUBLIC_GOOGLE_AUTH_CLIENT_ID_KEY}
-      >
+      <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_AUTH_CLIENT_ID_KEY}>
         <PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}>
+          {/* Create context providers with their values */}
           <UserDetailContext.Provider value={{ userDetail, setUserDetail }}>
             <MessagesContext.Provider value={{ messages, setMessages }}>
-              <ActionContext.Provider value={{action, setAction}}>
-              <NextThemesProvider
-                attribute="class"
-                defaultTheme="dark"
-                enableSystem
-                disableTransitionOnChange
-              >
-             
-                <SidebarProvider defaultOpen={false} className="flex flex-col justify-center">
-                  
-                <Header />
-                  
-                  {children}
-                  <div className="absolute">
-                  <AppSideBar />
-                  </div>
-                </SidebarProvider>
-              </NextThemesProvider>
+              <ActionContext.Provider value={{ action, setAction }}>
+                <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+                  <TooltipProvider>
+                    <SidebarProvider>
+                      <Header />
+                      {children}
+                      <div className="absolute">
+                        <AppSideBar />
+                      </div>
+                    </SidebarProvider>
+                  </TooltipProvider>
+                </ThemeProvider>
               </ActionContext.Provider>
             </MessagesContext.Provider>
           </UserDetailContext.Provider>
