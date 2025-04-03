@@ -4,11 +4,12 @@ import React, { useContext, useState, useEffect, useRef } from 'react';
 import { Button } from '../ui/button';
 import { UserDetailContext } from '@/context/UserDetailContext';
 import Link from 'next/link';
-import { Download, Rocket, Menu, X, Code, CodeXml, ChevronDown, Terminal, Globe, Star, Sparkles } from 'lucide-react';
+import { Download, Rocket, Menu, X, Code, CodeXml, ChevronDown, Terminal, Globe, Star, Sparkles, LogOut } from 'lucide-react';
 import { useSidebar } from '../ui/sidebar';
 import { usePathname } from 'next/navigation';
 import { ActionContext } from '@/context/ActionContext';
 import { motion, AnimatePresence, useAnimation, useMotionValue, useTransform } from 'framer-motion';
+import SignInDialog from './SignInDialog';
 
 function Header() {
   const { userDetail, setUserDetail } = useContext(UserDetailContext);
@@ -18,6 +19,7 @@ function Header() {
   const [hoveredButton, setHoveredButton] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   
   // Handle scroll event to change header appearance
   useEffect(() => {
@@ -256,6 +258,18 @@ function Header() {
     );
   };
   
+  // Handle sign out functionality
+  const handleSignOut = () => {
+    // Clear user data from localStorage
+    localStorage.removeItem('user');
+    
+    // Clear user state in context
+    setUserDetail(null);
+    
+    // Redirect to home page
+    window.location.href = '/';
+  };
+
   return (
     <motion.div 
       className={`px-4 md:px-8 py-3 flex justify-between items-center border-b backdrop-blur-lg sticky top-0 z-40 transition-all duration-300 ${
@@ -448,7 +462,7 @@ function Header() {
       </div>
 
       {/* Right Side Content */}
-      <div className="z-10 relative hidden md:block">
+      <div className="z-10 relative hidden md:flex items-center ml-auto">
         {!userDetail?.name ? (
           <div className="flex gap-3 items-center">
             <Button 
@@ -456,6 +470,7 @@ function Header() {
               onMouseEnter={() => setHoveredButton('signin')}
               onMouseLeave={() => setHoveredButton(null)}
               className="relative overflow-hidden"
+              onClick={() => setOpenDialog(true)}
             >
               <span>Sign In</span>
               <AnimatePresence>
@@ -475,6 +490,7 @@ function Header() {
               className="text-white relative overflow-hidden group"
               onMouseEnter={() => setHoveredButton('start')}
               onMouseLeave={() => setHoveredButton(null)}
+              onClick={() => setOpenDialog(true)}
             >
               <span className="relative z-10">Get Started</span>
               <motion.div 
@@ -493,14 +509,9 @@ function Header() {
             </Button>
           </div>
         ) : (
-          <div className="flex gap-3 items-center">
+          <div className="flex items-center gap-4">
             {pathname.includes('/workspace/') && (
-              <motion.div 
-                className="flex gap-3"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-              >
+              <div className="flex gap-3 mr-4">
                 <Button 
                   variant="outline" 
                   onClick={() => onActionBtn('export')}
@@ -538,41 +549,57 @@ function Header() {
                     transition={{ type: "spring", stiffness: 100, damping: 15 }}
                   />
                 </Button>
-              </motion.div>
+              </div>
             )}
-            {userDetail && (
-              <motion.div 
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                whileTap={{ scale: 0.9 }}
-                className="relative"
-                onClick={toggleSidebar}
+            
+            
+            <div className="flex items-center gap-3 ml-auto">
+              {/* Sign Out Button for Desktop */}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-400 hover:text-white"
+                onClick={handleSignOut}
               >
-                <Image
-                  src={userDetail?.picture}
-                  alt="userImage"
-                  width={40}
-                  height={40}
-                  className="rounded-full cursor-pointer object-cover shadow-md"
-                />
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
+              </Button>
+              
+              {/* User profile image */}
+              {userDetail && (
                 <motion.div 
-                  className="absolute inset-0 rounded-full border-2 border-blue-500"
-                  initial={{ opacity: 0 }}
-                  whileHover={{ opacity: 1 }}
-                  style={{ zIndex: -1 }}
-                />
-                <motion.div 
-                  className="absolute inset-0 -z-10 rounded-full bg-blue-500/20 blur-sm"
-                  initial={{ opacity: 0 }}
-                  whileHover={{ opacity: 1 }}
-                />
-                <motion.div
-                  className="absolute -top-1 -right-1 bg-green-500 h-3 w-3 rounded-full border-2 border-background"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.5 }}
-                />
-              </motion.div>
-            )}
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="relative"
+                  onClick={toggleSidebar}
+                >
+                  <Image
+                    src={userDetail?.picture}
+                    alt="userImage"
+                    width={40}
+                    height={40}
+                    className="rounded-full cursor-pointer object-cover shadow-md"
+                  />
+                  <motion.div 
+                    className="absolute inset-0 rounded-full border-2 border-blue-500"
+                    initial={{ opacity: 0 }}
+                    whileHover={{ opacity: 1 }}
+                    style={{ zIndex: -1 }}
+                  />
+                  <motion.div 
+                    className="absolute inset-0 -z-10 rounded-full bg-blue-500/20 blur-sm"
+                    initial={{ opacity: 0 }}
+                    whileHover={{ opacity: 1 }}
+                  />
+                  <motion.div
+                    className="absolute -top-1 -right-1 bg-green-500 h-3 w-3 rounded-full border-2 border-background"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.5 }}
+                  />
+                </motion.div>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -632,29 +659,55 @@ function Header() {
               <div className="flex flex-col gap-4 mt-4 w-64">
                 {!userDetail?.name ? (
                   <>
-                    <Button variant="ghost" className="w-full text-lg">
+                    <Button 
+                      variant="ghost" 
+                      className="w-full text-lg"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        setOpenDialog(true);
+                      }}
+                    >
                       Sign In
                     </Button>
-                    <Button variant="gradient" className="w-full text-lg">
+                    <Button 
+                      variant="gradient" 
+                      className="w-full text-lg"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        setOpenDialog(true);
+                      }}
+                    >
                       Get Started
                     </Button>
                   </>
                 ) : (
-                  <div className="flex items-center gap-3 justify-center">
-                    <Image
-                      src={userDetail?.picture}
-                      alt="userImage"
-                      width={50}
-                      height={50}
-                      className="rounded-full border-2 border-blue-500"
-                    />
-                    <div className="text-left">
-                      <div className="font-medium">{userDetail.name}</div>
-                      <Button variant="ghost" size="sm" onClick={toggleSidebar} className="px-0 text-blue-400">
-                        Open Dashboard
-                      </Button>
+                  <>
+                    <div className="flex  gap-3 justify-end">
+                      <Image
+                        src={userDetail?.picture}
+                        alt="userImage"
+                        width={50}
+                        height={50}
+                        className="rounded-full border-2 border-blue-500"
+                      />
+                      <div className="text-left">
+                        <div className="font-medium">{userDetail.name}</div>
+                        <Button variant="ghost" size="sm" onClick={toggleSidebar} className="px-0 text-blue-400">
+                          Open Dashboard
+                        </Button>
+                      </div>
                     </div>
-                  </div>
+                    
+                    {/* Sign Out Button for Mobile */}
+                    <Button 
+                      variant="outline" 
+                      className="mt-4 w-full"
+                      onClick={handleSignOut}
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign Out
+                    </Button>
+                  </>
                 )}
               </div>
               
@@ -670,6 +723,12 @@ function Header() {
           </motion.div>
         )}
       </AnimatePresence>
+      
+      {/* SignInDialog component */}
+      <SignInDialog
+        openDialog={openDialog}
+        closeDialog={() => setOpenDialog(false)}
+      />
     </motion.div>
   );
 }
