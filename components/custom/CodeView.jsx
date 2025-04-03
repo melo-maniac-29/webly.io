@@ -1,6 +1,6 @@
-"use client"; //client side rendering
+"use client";
 
-import React, { useState, useContext, useEffect } from "react"; // Add useContext and useEffect imports
+import React, { useState, useContext, useEffect } from "react";
 import {
   SandpackProvider,
   SandpackLayout,
@@ -15,66 +15,55 @@ import Prompt from "@/data/Prompt";
 import { useConvex, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useParams } from "next/navigation";
-import { Loader2Icon } from "lucide-react";
+import { Code, FileCode, LayoutGrid, Loader2Icon, PlayCircle, SquareCode } from "lucide-react";
 import { countToken } from "./ChatView";
 import { UserDetailContext } from "@/context/UserDetailContext";
 import SandpackPreviewClient from "./SandpackPreviewClient";
 import { ActionContext } from "@/context/ActionContext";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "../ui/button";
 
 function CodeView() {
-  const { id } = useParams(); //get the workspace id from the url
-
-  const [activeTab, setActiveTab] = useState("code"); // Fixed useState hook
-
-  const [files, setFiles] = useState(Lookup?.DEFAULT_FILE); // Fixed useState hook
-
-  const { messages, setMessages } = useContext(MessagesContext); //Fixed useContext hook for messages
-
-  const UpdateFiles = useMutation(api.workspace.UpdateFiles); //Fixed useMutation hook for updating files
-
-  const convex = useConvex(); //Fixed useConvex hook
-
-  const [loading, setLoading] = useState(false); //Fixed useState hook for loading
-
-  const { userDetail, setUserDetail } = useContext(UserDetailContext); //Fixed useContext hook for userDetail
-
-  const UpdateTokens = useMutation(api.users.UpdateToken); //Fixed useMutation hook for updating tokens
-
-  const{action,setAction}=useContext(ActionContext); //Fixed useContext hook for action
+  const { id } = useParams();
+  const [activeTab, setActiveTab] = useState("code");
+  const [files, setFiles] = useState(Lookup?.DEFAULT_FILE);
+  const { messages, setMessages } = useContext(MessagesContext);
+  const UpdateFiles = useMutation(api.workspace.UpdateFiles);
+  const convex = useConvex();
+  const [loading, setLoading] = useState(false);
+  const { userDetail, setUserDetail } = useContext(UserDetailContext);
+  const UpdateTokens = useMutation(api.users.UpdateToken);
+  const {action, setAction} = useContext(ActionContext);
 
   useEffect(() => {
-    id && GetFiles(); //get the files from the database
+    id && GetFiles();
   }, [id]);
 
   useEffect(() => {
     setActiveTab('preview');
-  },[action])
+  },[action]);
 
   const GetFiles = async () => {
-    //function to get the files from the database
-    setLoading(true); //set loading to true
+    setLoading(true);
     const result = await convex.query(api.workspace.GetWorkspace, {
       workspaceId: id,
     });
     const mergedFiles = { ...Lookup.DEFAULT_FILE, ...result?.fileData };
     setFiles(mergedFiles);
-    setLoading(false); //set loading to false
+    setLoading(false);
   };
 
   useEffect(() => {
     if (messages?.length > 0) {
-      /*if messages are present then get the AI response*/
-
       const role = messages[messages?.length - 1].role;
-
       if (role == "user") {
-        GenerateAiCode(); //chat response succesfully-created
+        GenerateAiCode();
       }
     }
   }, [messages]);
 
   const GenerateAiCode = async () => {
-    setLoading(true); //set loading to true
+    setLoading(true);
     const PROMPT = JSON.stringify(messages) + " " + Prompt.CODE_GEN_PROMPT;
     const result = await axios.post("/api/gen-ai-code", {
       prompt: PROMPT,
@@ -86,13 +75,11 @@ function CodeView() {
     setFiles(mergedFiles);
 
     await UpdateFiles({
-      //update the files in the database
       workspaceId: id,
       files: aiResp?.files,
     });
 
-    const token =
-      Number(userDetail?.token) - Number(countToken(JSON.stringify(aiResp))); //update tokens in database
+    const token = Number(userDetail?.token) - Number(countToken(JSON.stringify(aiResp)));
 
     await UpdateTokens({
       userId: userDetail?._id,
@@ -102,40 +89,75 @@ function CodeView() {
     setUserDetail(prev=>({
       ...prev,
       token:token
-    }))
+    }));
 
-    setLoading(false); //set loading to false
+    setLoading(false);
   };
 
   return (
-    <div className="relative">
-      <div className="bg-[#181818] w-full p-2 border">
-        <div
-          className="items-center flex flex-wrap shrink-0
-         bg-black p-1 w-[140px] gap-3 justify-center rounded-full"
-        >
-          <h2
-            onClick={() => setActiveTab("code")}
-            className={`text-sm cursor-pointer ${
-              activeTab === "code"
-                ? "text-blue-500 bg-blue-500 bg-opacity-25 p-1 px-2 rounded-full"
-                : ""
-            }`}
-          >
-            code
-          </h2>
-          <h2
-            onClick={() => setActiveTab("preview")}
-            className={`text-sm cursor-pointer ${
-              activeTab === "preview"
-                ? "text-blue-500 bg-blue-500 bg-opacity-25 p-1 px-2 rounded-full"
-                : ""
-            }`}
-          >
-            preview
-          </h2>
+    <motion.div 
+      className="relative rounded-xl overflow-hidden shadow-lg border border-gray-800"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: "spring", duration: 0.6 }}
+    >
+      <div className="bg-gray-900 w-full p-2 border-b border-gray-800 backdrop-blur-sm">
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center space-x-2 px-2">
+            <Code size={18} className="text-blue-400" />
+            <h2 className="font-medium text-sm text-gray-300">Web Editor</h2>
+          </div>
+          
+          <div className="flex items-center gap-2 rounded-lg bg-gray-950/50 p-1 backdrop-blur-sm">
+            <motion.button
+              className={`relative flex items-center gap-1 text-sm px-4 py-1.5 rounded-md ${
+                activeTab === "code" 
+                  ? "text-white" 
+                  : "text-gray-400 hover:text-white"
+              }`}
+              onClick={() => setActiveTab("code")}
+              whileHover={{ y: -1 }}
+              whileTap={{ y: 0 }}
+            >
+              <FileCode size={14} />
+              <span>Code</span>
+              {activeTab === "code" && (
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-md -z-10"
+                  layoutId="tab-bg"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                />
+              )}
+            </motion.button>
+            
+            <motion.button
+              className={`relative flex items-center gap-1 text-sm px-4 py-1.5 rounded-md ${
+                activeTab === "preview" 
+                  ? "text-white" 
+                  : "text-gray-400 hover:text-white"
+              }`}
+              onClick={() => setActiveTab("preview")}
+              whileHover={{ y: -1 }}
+              whileTap={{ y: 0 }}
+            >
+              <PlayCircle size={14} />
+              <span>Preview</span>
+              {activeTab === "preview" && (
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-md -z-10"
+                  layoutId="tab-bg"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                />
+              )}
+            </motion.button>
+          </div>
         </div>
       </div>
+      
       <SandpackProvider
         files={files}
         template="react"
@@ -150,24 +172,77 @@ function CodeView() {
         }}
       >
         <SandpackLayout>
-          {activeTab=='code'?<>
-          <SandpackFileExplorer style={{height:'80vh'}} />
-          <SandpackCodeEditor style={{height:'80vh'}} />
-          </>:<>
-          <SandpackPreviewClient/>
-          </>}
+          <AnimatePresence mode="wait">
+            {activeTab === 'code' ? (
+              <motion.div
+                key="code-view"
+                className="flex w-full"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <SandpackFileExplorer style={{height:'80vh'}} className="border-r border-gray-800" />
+                <SandpackCodeEditor style={{height:'80vh'}} />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="preview"
+                className="w-full"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <SandpackPreviewClient />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </SandpackLayout>
       </SandpackProvider>
-      {loading && (
-        <div
-          className="p-10 bg-gray-900 opacity-80
-      absolute top-0  rounded-lg  w-full h-full flex items-center justify-center"
-        >
-          <Loader2Icon className="animate-spin h-10 w-10 text-white" />
-          <h2 className="text-white">Generating your files..</h2>
-        </div>
-      )}
-    </div>
+      
+      <AnimatePresence>
+        {loading && (
+          <motion.div
+            className="absolute inset-0 bg-gray-900/80 backdrop-blur-sm flex flex-col items-center justify-center gap-4 z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              animate={{ 
+                scale: [1, 1.1, 1],
+                rotate: [0, 180, 360]
+              }}
+              transition={{ 
+                duration: 2, 
+                repeat: Infinity,
+                ease: "easeInOut" 
+              }}
+            >
+              <Loader2Icon className="h-12 w-12 text-blue-500" />
+            </motion.div>
+            <motion.h2 
+              className="text-lg font-medium bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500"
+              animate={{ 
+                opacity: [0.7, 1, 0.7],
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              Generating your files...
+            </motion.h2>
+            <motion.div
+              className="text-xs text-gray-400 max-w-sm text-center mt-2"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              Our AI is crafting your code. This might take a few moments.
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
 
