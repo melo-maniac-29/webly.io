@@ -2,50 +2,68 @@
 import * as React from "react";
 import { SheetContent, SheetTrigger, Sheet } from "@/components/ui/sheet";
 import { cva } from "class-variance-authority";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
+// Optimized animation variants with better performance
 const sidebarVariants = {
-  hidden: { x: "100%", opacity: 0 },
+  hidden: (side) => ({ 
+    x: side === "right" ? "100%" : "-100%", 
+    opacity: 0,
+    boxShadow: "0px 0px 0px rgba(0, 0, 0, 0)"
+  }),
   visible: { 
     x: "0%", 
     opacity: 1,
+    boxShadow: "0px 0px 20px rgba(0, 0, 0, 0.3)",
     transition: {
       type: "spring",
-      stiffness: 400,
-      damping: 40
+      stiffness: 350,
+      damping: 30,
+      opacity: { duration: 0.2 }
     }
   },
-  exit: { 
-    x: "100%", 
+  exit: (side) => ({ 
+    x: side === "right" ? "100%" : "-100%", 
     opacity: 0,
+    boxShadow: "0px 0px 0px rgba(0, 0, 0, 0)",
     transition: {
       type: "spring",
-      stiffness: 400,
-      damping: 40
+      stiffness: 350,
+      damping: 30,
+      opacity: { duration: 0.2 }
     }
-  }
+  })
 };
 
+// Improved sidebar content variants with more CSS options
 const sidebarContentVariants = cva(
-  "flex h-full flex-col overflow-hidden rounded-lg bg-background pb-0",
+  "flex h-full flex-col overflow-hidden rounded-lg bg-background pb-0 shadow-lg relative",
   {
     variants: {
       side: {
-        left: "rounded-r-none",
-        right: "rounded-l-none",
+        left: "rounded-r-lg border-r",
+        right: "rounded-l-lg border-l",
       },
+      appearance: {
+        default: "bg-background",
+        translucent: "bg-background/90 backdrop-blur-md"
+      }
     },
     defaultVariants: {
       side: "right",
+      appearance: "translucent"
     },
   }
 );
 
+// Context with extended features
 export const SidebarContext = React.createContext({
   isOpen: false,
   setIsOpen: () => {},
   side: "right",
   toggleSidebar: () => {},
+  lastActiveTrigger: null,
+  setLastActiveTrigger: () => {},
 });
 
 export const useSidebar = () => {
@@ -61,72 +79,176 @@ function Sidebar({
   side = "right",
   className,
   defaultOpen = false,
+  appearance = "translucent",
+  width = "xs",
+  mouseSensitivity = 20,
   ...props
 }) {
   const [isOpen, setIsOpen] = React.useState(defaultOpen);
   const [shouldTrackMouse, setShouldTrackMouse] = React.useState(true);
+  const prefersReducedMotion = useReducedMotion();
   const timeoutRef = React.useRef(null);
+  const contentRef = React.useRef(null);
+  const lastInteractionRef = React.useRef(Date.now());
   
-  // Track mouse position
+  // Get actual width value from size prop
+  const widthClass = React.useMemo(() => {
+    const sizes = {
+      "xs": "max-w-xs",
+      "sm": "max-w-sm", 
+      "md": "max-w-md",
+      "lg": "max-w-lg",
+      "xl": "max-w-xl",
+      "2xl": "max-w-2xl",
+      "3xl": "max-w-3xl",
+      "4xl": "max-w-4xl",
+      "5xl": "max-w-5xl",
+      "full": "max-w-full"
+    };
+    return sizes[width] || sizes.xs;
+  }, [width]);
+  
+  // Improved mouse tracking with debounce
   React.useEffect(() => {
+    let debounceTimeout;
+    
     const handleMouseMove = (e) => {
       if (!shouldTrackMouse) return;
       
-      // For right sidebar, detect when cursor is near right edge
-      if (side === "right") {
-        const triggerThreshold = window.innerWidth - 20; // 20px from right edge
-        if (e.clientX >= triggerThreshold && !isOpen) {
-          setIsOpen(true);
-          // Temporarily disable tracking to prevent flicker
-          setShouldTrackMouse(false);
-          setTimeout(() => setShouldTrackMouse(true), 500);
+      // Only check position after a minimum interval since last interaction
+      if (Date.now() - lastInteractionRef.current < 500) return;
+      
+      // If sidebar is open, check if mouse is far enough away to close it
+      if (isOpen) {
+        const sidebarElement = document.querySelector(`.sidebar-${side}`);
+        if (sidebarElement) {
+          const rect = sidebarElement.getBoundingClientRect();
+          const threshold = 50;
+          
+          // For right sidebar, close if mouse is far enough to the left
+          if (side === "right" && e.clientX < rect.left - threshold) {
+            if (timeoutRef.current) clearTimeout(timeoutRef.current);
+            timeoutRef.current = setTimeout(() => {
+              setIsOpen(false);
+            }, 200);
+          }
+          // For left sidebar, close if mouse is far enough to the right
+          else if (side === "left" && e.clientX > rect.right + threshold) {
+            if (timeoutRef.current) clearTimeout(timeoutRef.current);
+            timeoutRef.current = setTimeout(() => {
+              setIsOpen(false);
+            }, 200);
+          }
+          // If mouse moved back to sidebar area, clear any pending close timeout
+          else if (
+            e.clientX >= rect.left - 10 && 
+            e.clientX <= rect.right + 10 && 
+            e.clientY >= rect.top && 
+            e.clientY <= rect.bottom
+          ) {
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+              timeoutRef.current = null;
+            }
+          }
         }
       }
-      // For left sidebar, detect when cursor is near left edge
-      else if (side === "left") {
-        const triggerThreshold = 20; // 20px from left edge
-        if (e.clientX <= triggerThreshold && !isOpen) {
-          setIsOpen(true);
-          setShouldTrackMouse(false);
-          setTimeout(() => setShouldTrackMouse(true), 500);
-        }
+      // If sidebar is closed, check if mouse is near edge to open it
+      else {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => {
+          // For right sidebar, detect when cursor is near right edge
+          if (side === "right") {
+            const triggerThreshold = window.innerWidth - mouseSensitivity;
+            if (e.clientX >= triggerThreshold) {
+              lastInteractionRef.current = Date.now();
+              setIsOpen(true);
+              // Temporarily disable tracking to prevent flicker
+              setShouldTrackMouse(false);
+              setTimeout(() => setShouldTrackMouse(true), 800);
+            }
+          }
+          // For left sidebar, detect when cursor is near left edge
+          else if (side === "left") {
+            const triggerThreshold = mouseSensitivity;
+            if (e.clientX <= triggerThreshold) {
+              lastInteractionRef.current = Date.now();
+              setIsOpen(true);
+              setShouldTrackMouse(false);
+              setTimeout(() => setShouldTrackMouse(true), 800);
+            }
+          }
+        }, 50); // 50ms debounce
       }
     };
 
-    // Auto hide when mouse moves away from sidebar
+    // Simpler mouseLeave handler that works more reliably
     const handleMouseLeave = () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       
       timeoutRef.current = setTimeout(() => {
+        lastInteractionRef.current = Date.now();
         setIsOpen(false);
-      }, 300); // Short delay before closing
+      }, 300);
     };
     
     // Keep sidebar open when mouse is over it
     const handleMouseEnter = () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
+    // Add global mouse move listener for constant position tracking
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
     
-    // Get sidebar element to attach mouse enter/leave events
+    // We use MutationObserver to attach event listeners after the sidebar element appears
+    const observer = new MutationObserver(() => {
+      const sidebarElement = document.querySelector(`.sidebar-${side}`);
+      if (sidebarElement) {
+        sidebarElement.addEventListener("mouseleave", handleMouseLeave);
+        sidebarElement.addEventListener("mouseenter", handleMouseEnter);
+      }
+    });
+    
+    // Start observing the document body
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    // Also attach immediately in case element already exists
     const sidebarElement = document.querySelector(`.sidebar-${side}`);
     if (sidebarElement) {
       sidebarElement.addEventListener("mouseleave", handleMouseLeave);
       sidebarElement.addEventListener("mouseenter", handleMouseEnter);
     }
 
+    // Add keyboard accessibility
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && isOpen) {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("keydown", handleKeyDown);
+      observer.disconnect();
+      
+      const sidebarElement = document.querySelector(`.sidebar-${side}`);
       if (sidebarElement) {
         sidebarElement.removeEventListener("mouseleave", handleMouseLeave);
         sidebarElement.removeEventListener("mouseenter", handleMouseEnter);
       }
+      
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      clearTimeout(debounceTimeout);
     };
-  }, [isOpen, side, shouldTrackMouse]);
+  }, [isOpen, side, shouldTrackMouse, mouseSensitivity]);
 
+  // Toggle sidebar with improved touch/click tracking
   const toggleSidebar = React.useCallback(() => {
+    lastInteractionRef.current = Date.now();
     setIsOpen((prev) => !prev);
   }, []);
 
@@ -139,18 +261,48 @@ function Sidebar({
         toggleSidebar,
       }}
     >
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isOpen && (
-          <motion.div
-            className={`fixed inset-y-0 ${side === "right" ? "right-0" : "left-0"} z-50 max-w-xs w-full sidebar-${side}`}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            variants={sidebarVariants}
+          <>
+            {/* Add overlay for small screens */}
+            <motion.div
+              className="fixed inset-0 bg-black/20 z-40 md:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setIsOpen(false)}
+            />
+            
+            <motion.div
+              ref={contentRef}
+              className={`fixed inset-y-0 ${side === "right" ? "right-0" : "left-0"} z-50 ${widthClass} w-full sidebar-${side}`}
+              custom={side}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={prefersReducedMotion ? {} : sidebarVariants}
+              style={{
+                willChange: "transform",
+                backfaceVisibility: "hidden",
+              }}
+            >
+              <div className={sidebarContentVariants({ side, appearance, className })}>
+                {children}
+              </div>
+            </motion.div>
+          </>
+        )}
+        
+        {/* Optional indicator when closed */}
+        {!isOpen && (
+          <motion.div 
+            className={`absolute ${side === "right" ? "-left-2" : "-right-2"} top-1/2 transform -translate-y-1/2 z-50`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
           >
-            <div className={sidebarContentVariants({ side, className })}>
-              {children}
-            </div>
+            <div className={`bg-blue-500/20 backdrop-blur-sm h-24 w-2 rounded-${side === "right" ? "l" : "r"}-md border-${side === "right" ? "l" : "r"} border-t border-b border-blue-500/30`} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -158,22 +310,25 @@ function Sidebar({
   );
 }
 
-// Add SidebarProvider component
+// SidebarProvider component
 function SidebarProvider({ children }) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [side, setSide] = React.useState("right");
+  const [side, setSide] = React.useState("left");
+  const [lastActiveTrigger, setLastActiveTrigger] = React.useState(null);
 
   const toggleSidebar = React.useCallback(() => {
     setIsOpen((prev) => !prev);
   }, []);
 
-  const value = {
+  const value = React.useMemo(() => ({
     isOpen,
     setIsOpen,
     side,
     setSide,
-    toggleSidebar
-  };
+    toggleSidebar,
+    lastActiveTrigger,
+    setLastActiveTrigger
+  }), [isOpen, side, toggleSidebar, lastActiveTrigger]);
 
   return (
     <SidebarContext.Provider value={value}>
@@ -182,40 +337,77 @@ function SidebarProvider({ children }) {
   );
 }
 
-const SidebarHeader = React.forwardRef(({ className, ...props }, ref) => (
+// Enhanced header with sticky support
+const SidebarHeader = React.forwardRef(({ className, sticky = false, ...props }, ref) => (
   <div
     ref={ref}
-    className={`relative shrink-0 ${className}`}
+    className={`relative shrink-0 ${sticky ? "sticky top-0 z-10" : ""} ${className}`}
     {...props}
   />
 ));
 SidebarHeader.displayName = "SidebarHeader";
 
-const SidebarFooter = React.forwardRef(({ className, ...props }, ref) => (
+// Enhanced footer with sticky bottom support
+const SidebarFooter = React.forwardRef(({ className, sticky = true, ...props }, ref) => (
   <div
     ref={ref}
-    className={`shrink-0 ${className}`}
+    className={`shrink-0 ${sticky ? "sticky bottom-0 z-10" : ""} ${className}`}
     {...props}
   />
 ));
 SidebarFooter.displayName = "SidebarFooter";
 
-const SidebarContent = React.forwardRef(({ className, ...props }, ref) => (
+// Content with scroll fade options
+const SidebarContent = React.forwardRef(({ 
+  className, 
+  fadeTop = false,
+  fadeBottom = false,
+  ...props 
+}, ref) => (
   <div
     ref={ref}
-    className={`flex-1 ${className}`}
+    className={`relative flex-1 ${className}`}
     {...props}
-  />
+  >
+    {fadeTop && (
+      <div className="absolute top-0 left-0 right-0 h-4 bg-gradient-to-b from-background to-transparent z-10 pointer-events-none" />
+    )}
+    {props.children}
+    {fadeBottom && (
+      <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
+    )}
+  </div>
 ));
 SidebarContent.displayName = "SidebarContent";
 
-const SidebarGroup = React.forwardRef(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={`text-sm font-medium ${className}`}
-    {...props}
-  />
-));
+// Enhanced group with new animation options
+const SidebarGroup = React.forwardRef(({ 
+  className, 
+  animate = false,
+  title,
+  ...props 
+}, ref) => {
+  return (
+    <div
+      ref={ref}
+      className={`text-sm font-medium ${className}`}
+      {...props}
+    >
+      {title && (
+        <h3 className="text-xs uppercase tracking-wider text-gray-500 mb-2 px-2">{title}</h3>
+      )}
+      {animate ? (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          {props.children}
+        </motion.div>
+      ) : props.children}
+    </div>
+  );
+});
 SidebarGroup.displayName = "SidebarGroup";
 
 export {
@@ -227,5 +419,5 @@ export {
   Sheet,
   SheetTrigger,
   SheetContent,
-  SidebarProvider // This is fine now since we're not exporting it earlier
+  SidebarProvider
 };

@@ -52,10 +52,12 @@ export function Provider({ children }) {
                 <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
                   <TooltipProvider>
                     <SidebarProvider>
-                      <Header />
-                      {children}
                       <div className="absolute">
                         <AppSideBar />
+                      </div>
+                      <Header />
+                      <div className="pl-0 md:pl-4 transition-all duration-300">
+                        {children}
                       </div>
                     </SidebarProvider>
                   </TooltipProvider>

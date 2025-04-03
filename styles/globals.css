@@ -1,10 +1,37 @@
 /* ...existing code... */
 
-/* Utility for sidebar transitions */
+/* Enhanced utilities for sidebar transitions */
 .sidebar-right, .sidebar-left {
   will-change: transform;
   pointer-events: auto;
   touch-action: none;
+  contain: layout paint;  /* Improve performance with CSS containment */
+  isolation: isolate;
+}
+
+/* Add custom scrollbar colors for the sidebar */
+.sidebar-right::-webkit-scrollbar,
+.sidebar-left::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.sidebar-right::-webkit-scrollbar-thumb,
+.sidebar-left::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.5);
+  border-radius: 3px;
+}
+
+.sidebar-right::-webkit-scrollbar-thumb:hover,
+.sidebar-left::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.8);
+}
+
+/* Improve focus styles for improved accessibility */
+.sidebar-right :focus-visible,
+.sidebar-left :focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.5);
+  outline-offset: 2px;
 }
 
 /* ...existing code... */
