@@ -19,11 +19,11 @@ function SandpackPreviewClient() {
 
   const handleRunCode = async () => {
     try {
-      const client = previewRef.current?.getClient();
-      if (client) {
-        // Refresh the preview to run latest code changes
-        client.refresh();
-        toast.success("Code is running in preview!");
+      // Use the sandpack instance to directly control the preview
+      if (sandpack) {
+        // This triggers the same action as clicking the "Run" button in Sandpack
+        sandpack.runSandpack();
+        toast.success("Code is running!");
       }
     } catch (error) {
       console.error("Error running code:", error);
