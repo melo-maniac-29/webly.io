@@ -4,7 +4,7 @@ import React, { useContext, useState, useEffect, useRef } from 'react';
 import { Button } from '../ui/button';
 import { UserDetailContext } from '@/context/UserDetailContext';
 import Link from 'next/link';
-import { Download, Rocket, Menu, X, Code, CodeXml, ChevronDown, Terminal, Globe, Star, Sparkles, LogOut } from 'lucide-react';
+import { Download, Rocket, Menu, X, Code, CodeXml, ChevronDown, Terminal, Globe, Star, Sparkles, LogOut, PlayCircle } from 'lucide-react';
 import { useSidebar } from '../ui/sidebar';
 import { usePathname } from 'next/navigation';
 import { ActionContext } from '@/context/ActionContext';
@@ -539,9 +539,9 @@ function Header() {
                     animate={hoveredButton === 'deploy' ? { x: 3 } : { x: 0 }}
                     transition={{ type: "spring", stiffness: 300, damping: 10, repeat: hoveredButton === 'deploy' ? Infinity : 0, repeatType: "mirror" }}
                   >
-                    <Rocket className="relative z-10" />
+                    <PlayCircle className="relative z-10" />
                   </motion.div>
-                  <span className="relative z-10 ml-2">Deploy</span>
+                  <span className="relative z-10 ml-2">Run</span>
                   <motion.div 
                     className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-500"
                     initial={{ x: '-100%' }}

@@ -2,25 +2,46 @@
 import { ActionContext } from '@/context/ActionContext';
 import { SandpackPreview, useSandpack } from '@codesandbox/sandpack-react';
 import React, { useContext, useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 
 function SandpackPreviewClient() {
   const previewRef = useRef();
   const { sandpack } = useSandpack();
-    const { action, setAction } = useContext(ActionContext);
+  const { action, setAction } = useContext(ActionContext);
   
   useEffect(() => {
-    GetSandpackCleint();
-  }, [sandpack&& action]);
-  const GetSandpackCleint = async () => {
-    const client = previewRef.current?.getClient();
-    if (client) {
-      console.log(client);
-      const result = await client.getCodeSandboxURL();
-      if(action?.actionType == "deploy") {
-        window.open('https://' + result?.sandboxId + ".csb.app/")
-      } else if(action?.actionType == "export") {
-        window?.open(result?.editorUrl)
+    if (action?.actionType === "deploy") {
+      handleRunCode();
+    } else if (action?.actionType === "export") {
+      exportToCodeSandbox();
+    }
+  }, [action]);
+
+  const handleRunCode = async () => {
+    try {
+      const client = previewRef.current?.getClient();
+      if (client) {
+        // Refresh the preview to run latest code changes
+        client.refresh();
+        toast.success("Code is running in preview!");
       }
+    } catch (error) {
+      console.error("Error running code:", error);
+      toast.error("Failed to run code");
+    }
+  };
+  
+  const exportToCodeSandbox = async () => {
+    try {
+      const client = previewRef.current?.getClient();
+      if (client) {
+        const result = await client.getCodeSandboxURL();
+        window?.open(result?.editorUrl);
+        toast.success("Code exported to CodeSandbox");
+      }
+    } catch (error) {
+      console.error("Error exporting to CodeSandbox:", error);
+      toast.error("Failed to export code");
     }
   };
 
