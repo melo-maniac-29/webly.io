@@ -724,11 +724,25 @@ function Header() {
         )}
       </AnimatePresence>
       
-      {/* SignInDialog component */}
-      <SignInDialog
-        openDialog={openDialog}
-        closeDialog={() => setOpenDialog(false)}
-      />
+      {/* SignInDialog component - modified to ensure proper centering */}
+      {openDialog && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999]"
+          style={{ display: 'flex', alignItems: 'center', height: '100vh' }}
+          onClick={() => setOpenDialog(false)}
+        >
+          <div 
+            className="bg-gradient-to-br from-gray-900 to-gray-800 p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 border border-gray-700"
+            style={{ margin: 'auto' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <SignInDialog
+              openDialog={openDialog}
+              closeDialog={() => setOpenDialog(false)}
+            />
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }
