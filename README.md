@@ -1,17 +1,16 @@
-Here’s a properly formatted and well-structured `README.md` for your `webly.io` project:
+# Webly.io 🚀 - AI-Powered Web Development Platform
 
-```markdown
-# Webly.io 🚀
+Webly.io is a **revolutionary full-stack web application** that combines **artificial intelligence** with a modern tech stack - powered by **Convex** on the backend and **Next.js** on the frontend. It transforms the development workflow by generating production-ready code from natural language descriptions.
 
-Webly.io is a **full-stack web application** powered by **Convex** on the backend and **Next.js** on the frontend. It provides a seamless and scalable architecture for building modern web applications.
+## 🌟 Key Features
 
-## 🌟 Features
-
-- **Next.js Frontend** – Fast and SEO-friendly React-based frontend.
-- **Convex Backend** – Scalable, reactive, and database-driven backend.
-- **Real-time Updates** – Powered by Convex’s reactive data fetching.
-- **Authentication Support** – Easily integrates with OAuth, JWT, or custom authentication.
-- **Scalability** – Serverless backend with automatic scaling.
+- **AI-Powered Code Generation** – Transform ideas into clean, optimized code with our advanced AI models
+- **Next.js Frontend** – Fast, responsive, and SEO-friendly React-based frontend with SSR capabilities
+- **Convex Backend** – Scalable, reactive, and real-time database-driven backend with automatic syncing
+- **Token-Based Pricing** – Flexible pay-as-you-go model that scales with your development needs
+- **One-Click Deployment** – Seamlessly publish projects without complex configuration
+- **Real-time Collaboration** – Multi-user editing with intelligent conflict resolution
+- **Rich Template Library** – Pre-built, customizable designs for various application types
 
 ## 🛠️ Getting Started
 
