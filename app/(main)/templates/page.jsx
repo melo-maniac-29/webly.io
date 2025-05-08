@@ -435,11 +435,12 @@ export default function Templates() {
               <Button 
                 variant="outline" 
                 onClick={() => setFiltersOpen(!filtersOpen)}
-                className="w-full flex items-center justify-between"
+                className="w-full flex items-center justify-between py-3"
               >
                 <span className="flex items-center">
                   <Filter className="h-4 w-4 mr-2" />
-                  Filters
+                  Filters {selectedCategory !== 'All' || selectedDifficulty !== 'All' || selectedTags.length > 0 || showPremiumOnly ? 
+                    `(${selectedTags.length + (selectedCategory !== 'All' ? 1 : 0) + (selectedDifficulty !== 'All' ? 1 : 0) + (showPremiumOnly ? 1 : 0)})` : ''}
                 </span>
                 <ChevronDown 
                   className={`h-4 w-4 transition-transform ${filtersOpen ? 'rotate-180' : ''}`} 
@@ -450,12 +451,12 @@ export default function Templates() {
             {/* No results message */}
             {templates.length === 0 && (
               <motion.div 
-                className="flex flex-col items-center justify-center py-16 text-center"
+                className="flex flex-col items-center justify-center py-10 sm:py-16 text-center"
                 variants={itemVariants}
               >
-                <Search className="h-12 w-12 text-gray-500 mb-4" />
-                <h3 className="text-xl font-medium mb-2">No templates found</h3>
-                <p className="text-gray-400 mb-6 max-w-md">
+                <Search className="h-10 w-10 sm:h-12 sm:w-12 text-gray-500 mb-4" />
+                <h3 className="text-lg sm:text-xl font-medium mb-2">No templates found</h3>
+                <p className="text-gray-400 mb-6 max-w-md px-4">
                   We couldn't find any templates matching your current filters. Try adjusting your search criteria.
                 </p>
                 <Button variant="outline" onClick={resetFilters}>
@@ -465,7 +466,7 @@ export default function Templates() {
             )}
             
             {/* Templates grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {templates.map((template, index) => (
                 <motion.div
                   key={template.id}
@@ -511,26 +512,26 @@ export default function Templates() {
                   </div>
                   
                   {/* Template info */}
-                  <div className="p-5">
+                  <div className="p-4 sm:p-5">
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-semibold group-hover:text-blue-400 transition-colors">
+                      <h3 className="text-base sm:text-lg font-semibold group-hover:text-blue-400 transition-colors">
                         {template.title}
                       </h3>
                       <div className="flex items-center text-yellow-500">
                         <Star className="h-4 w-4 fill-current" />
-                        <span className="ml-1 text-sm font-medium">{template.rating}</span>
+                        <span className="ml-1 text-xs sm:text-sm font-medium">{template.rating}</span>
                       </div>
                     </div>
                     
-                    <p className="text-gray-400 text-sm mb-4 line-clamp-2">
+                    <p className="text-gray-400 text-xs sm:text-sm mb-4 line-clamp-2">
                       {template.description}
                     </p>
                     
-                    <div className="flex flex-wrap gap-1.5 mb-4">
+                    <div className="flex flex-wrap gap-1 sm:gap-1.5 mb-4">
                       {template.tags.map((tag, idx) => (
                         <span 
                           key={idx} 
-                          className="px-2 py-1 bg-gray-800 text-gray-400 text-xs rounded-md hover:bg-gray-700 cursor-pointer"
+                          className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-800 text-gray-400 text-xs rounded-md hover:bg-gray-700 cursor-pointer"
                           onClick={(e) => {
                             e.stopPropagation();
                             toggleTag(tag);
@@ -541,12 +542,12 @@ export default function Templates() {
                       ))}
                     </div>
                     
-                    <div className="flex justify-between items-center pt-4 border-t border-gray-800">
-                      <span className="text-sm text-gray-400 flex items-center">
-                        <Layers className="h-4 w-4 mr-1.5" />
+                    <div className="flex justify-between items-center pt-3 sm:pt-4 border-t border-gray-800">
+                      <span className="text-xs sm:text-sm text-gray-400 flex items-center">
+                        <Layers className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-1.5" />
                         {template.difficulty}
                       </span>
-                      <span className="text-sm text-gray-400">
+                      <span className="text-xs sm:text-sm text-gray-400">
                         {template.downloads.toLocaleString()} uses
                       </span>
                     </div>
@@ -562,7 +563,7 @@ export default function Templates() {
       <AnimatePresence>
         {activePreview && (
           <motion.div 
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -576,13 +577,13 @@ export default function Templates() {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Preview header */}
-              <div className="p-4 border-b border-gray-800 flex justify-between items-center">
+              <div className="p-3 sm:p-4 border-b border-gray-800 flex justify-between items-center">
                 <div>
-                  <h3 className="text-lg font-semibold">{activePreview.title}</h3>
-                  <p className="text-gray-400 text-sm">{activePreview.category}</p>
+                  <h3 className="text-base sm:text-lg font-semibold">{activePreview.title}</h3>
+                  <p className="text-gray-400 text-xs sm:text-sm">{activePreview.category}</p>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 bg-gray-800 rounded-lg p-1">
+                <div className="flex items-center gap-2 sm:gap-4">
+                  <div className="flex items-center gap-1 sm:gap-2 bg-gray-800 rounded-lg p-1">
                     <button 
                       className={`p-1.5 rounded ${previewDevice === 'desktop' ? 'bg-gray-700' : 'hover:bg-gray-700/50'}`}
                       onClick={() => setPreviewDevice('desktop')}
@@ -606,7 +607,7 @@ export default function Templates() {
                     className="p-1.5 rounded hover:bg-gray-800"
                     onClick={() => setActivePreview(null)}
                   >
-                    <X className="h-5 w-5" />
+                    <X className="h-4 w-4 sm:h-5 sm:w-5" />
                   </button>
                 </div>
               </div>
@@ -628,8 +629,8 @@ export default function Templates() {
               </div>
               
               {/* Preview footer */}
-              <div className="p-4 border-t border-gray-800 flex justify-between items-center">
-                <div className="flex items-center gap-2">
+              <div className="p-3 sm:p-4 border-t border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-3">
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
                   <div className="flex items-center text-yellow-500">
                     <Star className="h-4 w-4 fill-current" />
                     <span className="ml-1 text-sm font-medium">{activePreview.rating}</span>
@@ -638,11 +639,11 @@ export default function Templates() {
                     {activePreview.downloads.toLocaleString()} uses
                   </span>
                 </div>
-                <div className="flex gap-3">
-                  <Button variant="outline">
+                <div className="flex gap-3 w-full sm:w-auto">
+                  <Button variant="outline" className="w-full sm:w-auto">
                     Preview Code
                   </Button>
-                  <Button variant="gradient" className="gap-1">
+                  <Button variant="gradient" className="gap-1 w-full sm:w-auto">
                     <span>Use Template</span>
                     <ArrowRight className="h-4 w-4" />
                   </Button>

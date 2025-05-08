@@ -123,7 +123,7 @@ function Hero() {
     <motion.div 
       ref={heroRef}
       onMouseMove={handleMouseMove}
-      className="relative flex flex-col items-center mt-8 md:mt-12 gap-2 px-4 overflow-hidden"
+      className="relative flex flex-col items-center mt-4 md:mt-12 gap-2 px-4 overflow-hidden"
       variants={container}
       initial="hidden"
       animate="show"
@@ -157,12 +157,12 @@ function Hero() {
       {/* Features Badge */}
       <motion.div
         variants={item}
-        className="mb-4 flex items-center gap-1 bg-gray-800/70 backdrop-blur-md px-3 py-1.5 rounded-full text-xs border border-gray-700 shadow-md"
+        className="mb-4 flex flex-wrap justify-center items-center gap-1 bg-gray-800/70 backdrop-blur-md px-2 py-1.5 rounded-full text-xs border border-gray-700 shadow-md"
       >
         {features.map((feature, index) => (
           <React.Fragment key={index}>
-            {index > 0 && <span className="mx-1.5 opacity-30">•</span>}
-            <div className="flex items-center gap-1.5">
+            {index > 0 && <span className="mx-1 opacity-30 hidden sm:inline">•</span>}
+            <div className="flex items-center gap-1.5 px-1.5 py-1">
               <feature.icon size={12} className={feature.color} />
               <span>{feature.text}</span>
             </div>
@@ -247,7 +247,7 @@ function Hero() {
           transition={{ duration: 0.3 }}
         />
         
-        <div className="flex gap-2 relative">
+        <div className="flex flex-col-reverse sm:flex-row gap-2 relative">
           <div className="relative w-full group">
             {/* Floating label */}
             <motion.div
@@ -265,7 +265,7 @@ function Hero() {
             <textarea
               ref={textareaRef}
               placeholder=""
-              className="outline-none bg-transparent w-full min-h-[120px] max-h-64 resize-none text-white px-3 py-2 border-l-2 transition-colors"
+              className="outline-none bg-transparent w-full min-h-[120px] max-h-64 resize-none text-white px-3 py-2 border-l-2 transition-colors text-sm sm:text-base"
               style={{
                 borderColor: isFocused ? 'rgba(59, 130, 246, 0.5)' : 'rgba(75, 85, 99, 0.2)'
               }}
@@ -324,11 +324,11 @@ function Hero() {
                 exit={{ scale: 0, opacity: 0 }}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                className="self-end mb-2"
+                className="self-end sm:mb-2 w-full sm:w-auto"
               >
                 <button
                   onClick={() => onGenerate(userInput)}
-                  className="relative bg-gradient-to-r from-blue-500 to-purple-600 p-2 w-10 h-10 md:w-12 md:h-12 rounded-md cursor-pointer shadow-lg group overflow-hidden"
+                  className="relative bg-gradient-to-r from-blue-500 to-purple-600 p-2 w-full sm:w-10 h-10 sm:h-12 rounded-md cursor-pointer shadow-lg group overflow-hidden flex items-center justify-center sm:block"
                   aria-label="Generate content"
                 >
                   <motion.div 
@@ -337,7 +337,8 @@ function Hero() {
                     whileHover={{ x: 0 }}
                     transition={{ type: "spring", stiffness: 100, damping: 15 }}
                   />
-                  <ArrowRight className="relative z-10 w-full h-full text-white" />
+                  <span className="relative z-10 mr-2 sm:hidden">Generate</span>
+                  <ArrowRight className="relative z-10 w-5 h-5 sm:w-full sm:h-full text-white" />
                 </button>
               </motion.div>
             )}

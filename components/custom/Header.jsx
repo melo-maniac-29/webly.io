@@ -615,7 +615,7 @@ function Header() {
             transition={{ duration: 0.2 }}
           >
             <motion.div
-              className="flex flex-col items-center justify-center h-full gap-8"
+              className="flex flex-col items-center justify-center h-full gap-8 px-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
@@ -637,14 +637,14 @@ function Header() {
               {navItems.map((item, index) => (
                 <motion.div
                   key={index}
-                  className="text-center"
+                  className="text-center w-full"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 + (index * 0.1) }}
                 >
                   <Link href={item.href || '#'}>
                     <motion.div 
-                      className="flex items-center text-xl font-medium"
+                      className="flex items-center justify-center text-xl font-medium py-3 w-full rounded-lg hover:bg-gray-800/50"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
@@ -656,12 +656,12 @@ function Header() {
               ))}
               
               {/* Action Buttons */}
-              <div className="flex flex-col gap-4 mt-4 w-64">
+              <div className="flex flex-col gap-4 mt-4 w-full">
                 {!userDetail?.name ? (
                   <>
                     <Button 
                       variant="ghost" 
-                      className="w-full text-lg"
+                      className="w-full text-lg py-6"
                       onClick={() => {
                         setMenuOpen(false);
                         setOpenDialog(true);
@@ -671,7 +671,7 @@ function Header() {
                     </Button>
                     <Button 
                       variant="gradient" 
-                      className="w-full text-lg"
+                      className="w-full text-lg py-6"
                       onClick={() => {
                         setMenuOpen(false);
                         setOpenDialog(true);
@@ -682,7 +682,7 @@ function Header() {
                   </>
                 ) : (
                   <>
-                    <div className="flex  gap-3 justify-end">
+                    <div className="flex gap-3 justify-center items-center p-4 rounded-xl bg-gray-800/50">
                       <Image
                         src={userDetail?.picture}
                         alt="userImage"
@@ -701,7 +701,7 @@ function Header() {
                     {/* Sign Out Button for Mobile */}
                     <Button 
                       variant="outline" 
-                      className="mt-4 w-full"
+                      className="mt-4 w-full py-6"
                       onClick={handleSignOut}
                     >
                       <LogOut className="mr-2 h-4 w-4" />
@@ -713,7 +713,7 @@ function Header() {
               
               {/* Close Button */}
               <motion.button
-                className="absolute top-4 right-4 p-2 rounded-full bg-gray-800"
+                className="absolute top-4 right-4 p-3 rounded-full bg-gray-800"
                 onClick={() => setMenuOpen(false)}
                 whileTap={{ scale: 0.9 }}
               >

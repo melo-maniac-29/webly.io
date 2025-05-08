@@ -46,20 +46,20 @@ function SideBarFooter() {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-3 sm:p-4">
       <div className="flex justify-between">
         {menuItems.map((item, index) => (
           <motion.button
             key={index}
-            className="flex flex-col items-center justify-center gap-1.5 text-gray-400 hover:text-white transition-colors"
+            className="flex flex-col items-center justify-center gap-1 sm:gap-1.5 text-gray-400 hover:text-white transition-colors"
             whileHover={{ scale: 1.1, y: -2 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => handleMenuItemClick(item)}
           >
-            <div className="p-2 bg-gray-800 rounded-lg">
+            <div className="p-1.5 sm:p-2 bg-gray-800 rounded-lg">
               {item.icon}
             </div>
-            <span className="text-xs">{item.name}</span>
+            <span className="text-xs hidden sm:inline">{item.name}</span>
           </motion.button>
         ))}
       </div>

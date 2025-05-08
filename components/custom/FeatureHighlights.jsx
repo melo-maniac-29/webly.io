@@ -54,10 +54,10 @@ export default function FeatureHighlights() {
   };
   
   return (
-    <section className="py-16">
+    <section className="py-12 sm:py-16">
       <div className="container mx-auto px-4">
         <motion.div
-          className="text-center mb-16"
+          className="text-center mb-12 sm:mb-16"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -73,7 +73,7 @@ export default function FeatureHighlights() {
               <Sparkles className="w-6 h-6 text-blue-400" />
             </div>
           </motion.div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Powerful Features</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">Powerful Features</h2>
           <p className="text-gray-400 max-w-xl mx-auto">
             webly.io comes packed with everything you need to build and deploy web applications faster than ever
           </p>
@@ -81,7 +81,7 @@ export default function FeatureHighlights() {
         
         {/* Feature cards */}
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12"
           variants={container}
           initial="hidden"
           whileInView="show"
@@ -105,7 +105,7 @@ export default function FeatureHighlights() {
         
         {/* Feature showcase */}
         <motion.div 
-          className="bg-gradient-to-br from-gray-900/80 to-gray-900/50 rounded-2xl p-8 border border-gray-800 mt-12"
+          className="bg-gradient-to-br from-gray-900/80 to-gray-900/50 rounded-2xl p-5 sm:p-8 border border-gray-800 mt-12"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -117,7 +117,7 @@ export default function FeatureHighlights() {
                 <Code className="w-4 h-4" />
                 <span>AI-Powered Development</span>
               </div>
-              <h3 className="text-2xl md:text-3xl font-bold mb-4">Turn your ideas into code</h3>
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4">Turn your ideas into code</h3>
               <p className="text-gray-400 mb-6">
                 Our advanced AI understands your requirements and generates clean, production-ready code that follows best practices and modern standards.
               </p>
@@ -151,8 +151,8 @@ export default function FeatureHighlights() {
               </Link>
             </div>
             
-            <div className="relative">
-              <div className="bg-gray-950 rounded-lg border border-gray-800 p-4 shadow-xl max-w-md mx-auto">
+            <div className="relative mt-6 lg:mt-0">
+              <div className="bg-gray-950 rounded-lg border border-gray-800 p-3 sm:p-4 shadow-xl max-w-md mx-auto overflow-x-auto">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-3 h-3 rounded-full bg-red-500" />
                   <div className="w-3 h-3 rounded-full bg-yellow-500" />

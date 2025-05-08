@@ -108,12 +108,28 @@ function Sidebar({
     return sizes[width] || sizes.xs;
   }, [width]);
   
+  // Add a window size detection hook
+  React.useEffect(() => {
+    const handleResize = () => {
+      // Close sidebar automatically on small screens when resizing
+      if (window.innerWidth < 768 && isOpen) {
+        setIsOpen(false);
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isOpen, setIsOpen]);
+
   // Improved mouse tracking with debounce
   React.useEffect(() => {
     let debounceTimeout;
     
     const handleMouseMove = (e) => {
       if (!shouldTrackMouse) return;
+      
+      // Skip tracking on mobile devices
+      if (window.innerWidth < 768) return;
       
       // Only check position after a minimum interval since last interaction
       if (Date.now() - lastInteractionRef.current < 500) return;

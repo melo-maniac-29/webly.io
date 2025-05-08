@@ -156,54 +156,54 @@ function ChatView() {
 
   return (
     <motion.div 
-      className="relative h-[85vh] flex flex-col rounded-xl overflow-hidden border border-gray-800 shadow-lg bg-gray-950/70"
+      className="relative h-[80vh] sm:h-[85vh] flex flex-col rounded-xl overflow-hidden border border-gray-800 shadow-lg bg-gray-950/70"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", duration: 0.5 }}
     >
       {/* Header */}
-      <div className="bg-gray-900 p-3 border-b border-gray-800 flex items-center justify-between backdrop-blur-sm">
+      <div className="bg-gray-900 p-2 sm:p-3 border-b border-gray-800 flex items-center justify-between backdrop-blur-sm">
         <div className="flex items-center gap-2">
-          <Bot size={18} className="text-blue-400" />
+          <Bot size={16} sm={18} className="text-blue-400" />
           <h2 className="font-medium text-sm">AI Assistant</h2>
         </div>
         <div className="text-xs text-gray-400 bg-gray-800/60 px-2 py-1 rounded-full flex items-center">
-          <Sparkles size={12} className="text-blue-400 mr-1" />
-          {userDetail?.token || 0} tokens left
+          <Sparkles size={10} sm={12} className="text-blue-400 mr-1" />
+          {userDetail?.token || 0} tokens
         </div>
       </div>
       
       {/* Messages Area */}
       <div 
         ref={scrollContainerRef} 
-        className="flex-1 overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent p-4"
+        className="flex-1 overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent p-2 sm:p-4"
       >
         <AnimatePresence>
           {Array.isArray(messages) && messages.length > 0 ? (
             messages.map((msg, index) => (
               <motion.div
                 key={index}
-                className={`mb-4 flex gap-3 ${msg?.role === "user" ? "justify-end" : "justify-start"}`}
+                className={`mb-3 sm:mb-4 flex gap-2 sm:gap-3 ${msg?.role === "user" ? "justify-end" : "justify-start"}`}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
               >
                 <div 
-                  className={`rounded-2xl p-4 max-w-[85%] relative ${
+                  className={`rounded-2xl p-3 sm:p-4 max-w-[90%] sm:max-w-[85%] relative ${
                     msg?.role === "user" 
                       ? "bg-blue-600/20 text-white ml-auto border border-blue-500/30" 
                       : "bg-gray-800/70 border border-gray-700/50"
                   }`}
                 >
-                  <div className="flex items-center mb-2 gap-2">
+                  <div className="flex items-center mb-2 gap-1 sm:gap-2">
                     {msg?.role === "user" ? (
                       <>
                         <span className="text-xs font-medium text-gray-300">You</span>
-                        <User size={14} className="text-blue-400" />
+                        <User size={12} sm={14} className="text-blue-400" />
                       </>
                     ) : (
                       <>
-                        <Bot size={14} className="text-purple-400" />
+                        <Bot size={12} sm={14} className="text-purple-400" />
                         <span className="text-xs font-medium text-gray-300">AI Assistant</span>
                       </>
                     )}
@@ -212,14 +212,14 @@ function ChatView() {
                   <ReactMarkdown
                     components={{
                       p: ({ node, ...props }) => (
-                        <p className="text-gray-200 mb-2 leading-relaxed" {...props} />
+                        <p className="text-gray-200 mb-2 leading-relaxed text-sm sm:text-base" {...props} />
                       ),
                       code: ({ node, inline, ...props }) => (
                         <code
                           className={`${
                             inline
-                              ? "bg-gray-700/50 px-1 py-0.5 rounded text-blue-300"
-                              : "block bg-gray-900/90 p-3 rounded-lg my-2 text-blue-300 overflow-x-auto"
+                              ? "bg-gray-700/50 px-1 py-0.5 rounded text-blue-300 text-xs sm:text-sm"
+                              : "block bg-gray-900/90 p-2 sm:p-3 rounded-lg my-2 text-blue-300 overflow-x-auto text-xs sm:text-sm"
                           }`}
                           {...props}
                         />
@@ -244,9 +244,9 @@ function ChatView() {
               </motion.div>
             ))
           ) : (
-            <div className="h-full flex items-center justify-center">
-              <div className="text-center p-6 rounded-lg bg-gray-800/30 border border-gray-700/50 max-w-xs mx-auto">
-                <Bot size={32} className="text-blue-400 mx-auto mb-3" />
+            <div className="h-full flex items-center justify-center p-4">
+              <div className="text-center p-4 sm:p-6 rounded-lg bg-gray-800/30 border border-gray-700/50 max-w-xs mx-auto">
+                <Bot size={24} sm={32} className="text-blue-400 mx-auto mb-3" />
                 <h3 className="text-lg font-medium mb-2">Start the conversation</h3>
                 <p className="text-sm text-gray-400">
                   Ask questions about your code or request new features to build
@@ -307,13 +307,13 @@ function ChatView() {
       </AnimatePresence>
 
       {/* Input Area */}
-      <div className="p-3 border-t border-gray-800 bg-gray-900/50 backdrop-blur-sm">
+      <div className="p-2 sm:p-3 border-t border-gray-800 bg-gray-900/50 backdrop-blur-sm">
         <div className="flex gap-2 items-end">
           {userDetail && (
             <motion.div
               whileHover={{ scale: 1.1, rotate: 5 }}
               whileTap={{ scale: 0.9 }}
-              className="relative"
+              className="relative hidden sm:block"
               onClick={toggleSidebar}
             >
               <Image 
@@ -341,7 +341,7 @@ function ChatView() {
               onChange={(event) => setUserInput(event.target.value)}
               onKeyDown={handleKeyPress}
               disabled={userDetail?.token === 0}
-              className={`w-full resize-none bg-gray-800/50 border border-gray-700/50 rounded-lg p-3 pr-12 outline-none transition-colors min-h-[80px] max-h-32 placeholder-gray-500 text-gray-200 ${
+              className={`w-full resize-none bg-gray-800/50 border border-gray-700/50 rounded-lg p-2 sm:p-3 pr-12 outline-none transition-colors min-h-[60px] sm:min-h-[80px] max-h-32 placeholder-gray-500 text-sm sm:text-base text-gray-200 ${
                 userDetail?.token === 0 ? "opacity-60 cursor-not-allowed" : "focus:border-blue-500/50"
               }`}
             />
@@ -365,7 +365,7 @@ function ChatView() {
         </div>
         
         <div className="mt-2 text-xs text-gray-500 flex items-center justify-between px-2">
-          <span>Shift + Enter for new line</span>
+          <span className="hidden sm:inline">Shift + Enter for new line</span>
           {userDetail?.token < 50 && (
             <motion.div 
               className={`flex items-center gap-1 ${userDetail?.token === 0 ? "text-red-500" : "text-yellow-500"}`}

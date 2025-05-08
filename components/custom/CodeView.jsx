@@ -110,13 +110,13 @@ function CodeView() {
       <div className="bg-gray-900 w-full p-2 border-b border-gray-800 backdrop-blur-sm">
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center space-x-2 px-2">
-            <Code size={18} className="text-blue-400" />
+            <Code size={16} sm={18} className="text-blue-400" />
             <h2 className="font-medium text-sm text-gray-300">Web Editor</h2>
           </div>
           
-          <div className="flex items-center gap-2 rounded-lg bg-gray-950/50 p-1 backdrop-blur-sm">
+          <div className="flex items-center gap-1 sm:gap-2 rounded-lg bg-gray-950/50 p-1 backdrop-blur-sm">
             <motion.button
-              className={`relative flex items-center gap-1 text-sm px-4 py-1.5 rounded-md ${
+              className={`relative flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-4 py-1.5 rounded-md ${
                 activeTab === "code" 
                   ? "text-white" 
                   : "text-gray-400 hover:text-white"
@@ -125,7 +125,7 @@ function CodeView() {
               whileHover={{ y: -1 }}
               whileTap={{ y: 0 }}
             >
-              <FileCode size={14} />
+              <FileCode size={12} sm={14} />
               <span>Code</span>
               {activeTab === "code" && (
                 <motion.div
@@ -139,7 +139,7 @@ function CodeView() {
             </motion.button>
             
             <motion.button
-              className={`relative flex items-center gap-1 text-sm px-4 py-1.5 rounded-md ${
+              className={`relative flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-4 py-1.5 rounded-md ${
                 activeTab === "preview" 
                   ? "text-white" 
                   : "text-gray-400 hover:text-white"
@@ -148,7 +148,7 @@ function CodeView() {
               whileHover={{ y: -1 }}
               whileTap={{ y: 0 }}
             >
-              <PlayCircle size={14} />
+              <PlayCircle size={12} sm={14} />
               <span>Preview</span>
               {activeTab === "preview" && (
                 <motion.div
@@ -182,14 +182,17 @@ function CodeView() {
             {activeTab === 'code' ? (
               <motion.div
                 key="code-view"
-                className="flex w-full"
+                className="flex w-full flex-col sm:flex-row"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <SandpackFileExplorer style={{height:'80vh'}} className="border-r border-gray-800" />
-                <SandpackCodeEditor style={{height:'80vh'}} />
+                <SandpackFileExplorer 
+                  style={{height: 'auto', maxHeight: '30vh', width: '100%'}} 
+                  className="border-b sm:border-r sm:border-b-0 border-gray-800 sm:max-w-[200px]" 
+                />
+                <SandpackCodeEditor style={{height:'50vh', sm: {height:'80vh'}}} />
               </motion.div>
             ) : (
               <motion.div
