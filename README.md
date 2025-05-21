@@ -37,20 +37,31 @@ npm install
 
    ```bash
    touch .env.local
+   # or manually create the file in your editor
    ```
 
-2. Add the required environment variables to your `.env.local` file:
+2. Add the required environment variables to your `.env.local` file using the template below:
 
    ```
+   # Authentication
    NEXT_PUBLIC_GOOGLE_AUTH_CLIENT_ID_KEY=your_google_client_id
-   CONVEX_DEPLOYMENT=your_convex_deployment
+
+   # Convex backend
+   CONVEX_DEPLOYMENT=your_convex_deployment_name
    NEXT_PUBLIC_CONVEX_URL=your_convex_url
+
+   # API Keys
    NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_api_key
+
+   # Payment processor
    NEXT_PUBLIC_PAYPAL_CLIENT_ID=your_paypal_client_id
    NEXT_PAYPAL_SECRET=your_paypal_secret
    ```
 
-3. **IMPORTANT:** Never commit your `.env.local` file to the repository. It is already added to `.gitignore`.
+3. **IMPORTANT:** 
+   - Never commit your `.env.local` file to the repository
+   - Obtain your own API keys from the respective services
+   - Variables prefixed with `NEXT_PUBLIC_` will be exposed to the browser
 
 ### 4️⃣ Set Up Convex
 
