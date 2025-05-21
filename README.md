@@ -31,7 +31,28 @@ Ensure you have **Node.js** and **Convex CLI** installed. Then run:
 npm install
 ```
 
-### 3️⃣ Set Up Convex
+### 3️⃣ Set Up Environment Variables
+
+1. Create a `.env.local` file in the root directory:
+
+   ```bash
+   touch .env.local
+   ```
+
+2. Add the required environment variables to your `.env.local` file:
+
+   ```
+   NEXT_PUBLIC_GOOGLE_AUTH_CLIENT_ID_KEY=your_google_client_id
+   CONVEX_DEPLOYMENT=your_convex_deployment
+   NEXT_PUBLIC_CONVEX_URL=your_convex_url
+   NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_api_key
+   NEXT_PUBLIC_PAYPAL_CLIENT_ID=your_paypal_client_id
+   NEXT_PAYPAL_SECRET=your_paypal_secret
+   ```
+
+3. **IMPORTANT:** Never commit your `.env.local` file to the repository. It is already added to `.gitignore`.
+
+### 4️⃣ Set Up Convex
 
 1. Install Convex CLI globally (if not installed):
 
@@ -47,7 +68,7 @@ npm install
 
 3. Follow the CLI instructions to initialize your **Convex** backend.
 
-### 4️⃣ Run the Development Server
+### 5️⃣ Run the Development Server
 
 ```bash
 npm run dev
@@ -97,6 +118,17 @@ npm run build
 npm start
 ```
 
+## 🔐 Security Best Practices
+
+To ensure the security of your application:
+
+1. **Never commit API keys or secrets** to your repository
+2. Keep all sensitive information in `.env.local` which is excluded from git
+3. Rotate API keys regularly, especially after accidental exposure
+4. For production, use a secure secret management solution
+5. Prefix variables with `NEXT_PUBLIC_` only when they need to be exposed to the browser
+6. Monitor GitHub security alerts for any potential secret exposures
+
 ## 🤝 Contributing
 
 Contributions are welcome! To contribute:
@@ -118,6 +150,3 @@ Webly.io is built using **Next.js** and **Convex** to provide a modern, scalable
 ---
 
 ⭐ **If you find this project helpful, consider giving it a star!** ⭐
-```
-
-This README will make your repository well-documented and easy to navigate. Let me know if you need any modifications!
