@@ -63,6 +63,7 @@ npm install
    - Obtain your own API keys from the respective services
    - Variables prefixed with `NEXT_PUBLIC_` will be exposed to the browser
 
+
 ### 4️⃣ Set Up Convex
 
 1. Install Convex CLI globally (if not installed):
